@@ -1,5 +1,5 @@
 /// Marks types as compatible with `UserDefaults.set(_:forKey:)` serialization.
-protocol _UserDefaultsValue {
+public protocol _UserDefaultsValue {
     func save(in defaults: UserDefaults, key: String)
 }
 
@@ -7,7 +7,7 @@ protocol _UserDefaultsValue {
 fileprivate protocol _PrimitiveUserDefaultsValue: _UserDefaultsValue { }
 
 extension _PrimitiveUserDefaultsValue {
-    func save(in defaults: UserDefaults, key: String) {
+    public func save(in defaults: UserDefaults, key: String) {
         defaults.set(self, forKey: key)
     }
 }
@@ -18,11 +18,13 @@ extension _PrimitiveUserDefaultsValue {
 
 extension Bool: _PrimitiveUserDefaultsValue { }
 
+extension UInt: _PrimitiveUserDefaultsValue { }
 extension UInt64: _PrimitiveUserDefaultsValue { }
 extension UInt32: _PrimitiveUserDefaultsValue { }
 extension UInt16: _PrimitiveUserDefaultsValue { }
 extension UInt8: _PrimitiveUserDefaultsValue { }
 
+extension Int: _PrimitiveUserDefaultsValue { }
 extension Int64: _PrimitiveUserDefaultsValue { }
 extension Int32: _PrimitiveUserDefaultsValue { }
 extension Int16: _PrimitiveUserDefaultsValue { }
@@ -50,7 +52,7 @@ protocol _OptionalUserDefaultsValue: _UserDefaultsValue {
 }
 
 extension Optional: _UserDefaultsValue where Wrapped: _UserDefaultsValue {
-    func save(in defaults: UserDefaults, key: String) {
+    public func save(in defaults: UserDefaults, key: String) {
         wrapped?.save(in: defaults, key: key)
     }
 }
@@ -69,7 +71,7 @@ extension Optional: _OptionalUserDefaultsValue where Wrapped: _UserDefaultsValue
 import Foundation
 
 extension URL: _UserDefaultsValue {
-    func save(in defaults: UserDefaults, key: String) {
+    public func save(in defaults: UserDefaults, key: String) {
         defaults.set(self, forKey: key)
     }
 }

@@ -27,10 +27,12 @@ extension UserDefaultsAdapterTests {
         typealias Primitive = _UserDefaultsValue & Equatable
         let keyValuePairs: [String: any Primitive] = [
             "Bool": true,
+            "UInt": UInt.max,
             "UInt64": UInt64.max,
             "UInt32": UInt32.max,
             "UInt16": UInt16.max,
             "UInt8": UInt8.max,
+            "Int": Int.min,
             "Int64": Int64.min,
             "Int32": Int32.min,
             "Int16": Int16.min,
@@ -41,10 +43,12 @@ extension UserDefaultsAdapterTests {
             "Data": 0b10100101,
             "Date": Date(timeIntervalSince1970: 9876),
             "Optional<Bool>": Optional.some(true),
+            "Optional<UInt>": Optional.some(UInt.max),
             "Optional<UInt64>": Optional.some(UInt64.max),
             "Optional<UInt32>": Optional.some(UInt32.max),
             "Optional<UInt16>": Optional.some(UInt16.max),
             "Optional<UInt8>": Optional.some(UInt8.max),
+            "Optional<Int>": Optional.some(Int.min),
             "Optional<Int64>": Optional.some(Int64.min),
             "Optional<Int32>": Optional.some(Int32.min),
             "Optional<Int16>": Optional.some(Int16.min),
@@ -91,5 +95,23 @@ extension UserDefaultsAdapterTests {
 
         let actual = try XCTUnwrap(defaults.url(forKey: "Optional<URL>"))
         XCTAssertEqual(actual, url)
+    }
+
+    func testUserDefaultsApplicable() throws {
+        defaults.set("Peter", forKey: "name")
+        defaults.set(-7, forKey: "salary")
+        defaults.set(true, forKey: "health_insurance")
+
+        let changes: [UserDefaultsApplicable] = [
+            ChangeDefaults("name", changeTo: "Oliver"),
+            ChangeDefaults("salary", changeTo: 100_000),
+            DeleteDefaults(key: "health_insurance"),
+        ]
+        changes.forEach(defaults.apply(_:))
+
+        XCTAssertEqual(defaults.string(forKey: "name"), "Oliver")
+        XCTAssertEqual(defaults.integer(forKey: "salary"), 100_000)
+        XCTAssertEqual(defaults.bool(forKey: "health_insurance"), false)  // bool(forKey:) defaults to false when missing
+        XCTAssertNil(defaults.object(forKey: "health_insurance"), "health_insurance should've been deleted")
     }
 }
