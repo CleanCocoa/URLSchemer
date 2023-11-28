@@ -1,9 +1,10 @@
 /// Marks types as compatible with `UserDefaults.set(_:forKey:)` serialization.
-protocol _UserDefaultsValue: Equatable { 
+protocol _UserDefaultsValue {
     func save(in defaults: UserDefaults, key: String)
 }
 
-protocol _PrimitiveUserDefaultsValue: _UserDefaultsValue { }
+// The separation of `_PrimitiveUserDefaultsValue` from `_UserDefaultsValue` creates an extension point for arrays and dictionaries. Until we figure out how to represent these outside of query parameters in a URL without being overly weird, this is mostly a hint towards future changes and not of any immediate utility. That's why it's fileprivate for now.
+fileprivate protocol _PrimitiveUserDefaultsValue: _UserDefaultsValue { }
 
 extension _PrimitiveUserDefaultsValue {
     func save(in defaults: UserDefaults, key: String) {
@@ -37,8 +38,9 @@ extension Data: _PrimitiveUserDefaultsValue { }
 
 // MARK: Collections
 
-//extension Dictionary: _UserDefaultsValue where Key == String, Value: _UserDefaultsValue { }
-//extension Array: _UserDefaultsValue where Element: _UserDefaultsValue { }
+// As mentioned above, there's potential to make collections UserDefaults persitable, but less so fit into a URL.
+// extension Dictionary: _UserDefaultsValue where Key == String, Value: _UserDefaultsValue { }
+// extension Array: _UserDefaultsValue where Element: _UserDefaultsValue { }
 
 // MARK: Optional
 

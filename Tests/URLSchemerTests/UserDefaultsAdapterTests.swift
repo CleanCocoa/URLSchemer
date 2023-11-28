@@ -24,7 +24,8 @@ final class UserDefaultsAdapterTests: XCTestCase {
 
 extension UserDefaultsAdapterTests {
     func testPrimitives() {
-        let keyValuePairs: [String: any _UserDefaultsValue] = [
+        typealias Primitive = _UserDefaultsValue & Equatable
+        let keyValuePairs: [String: any Primitive] = [
             "Bool": true,
             "UInt64": UInt64.max,
             "UInt32": UInt32.max,
@@ -61,11 +62,11 @@ extension UserDefaultsAdapterTests {
         // Working on the generic dictionary representation is much simpler than having to fanout to the various typed reader methods like `string(forKey:)`. Since we don't provide a general purpose user defaults reading/writing library, we don't need any of that in production code.
         let dictionaryRepresentation = defaults.dictionaryRepresentation()
         
-        func assertActualValue<V: _UserDefaultsValue>(
+        func assertActualValue<V>(
             forKey key: String,
             equals value: V,
             file: StaticString = #file, line: UInt = #line
-        ) {
+        ) where V: Primitive {
             let actual = dictionaryRepresentation[key] as? V
             XCTAssertEqual(actual, value, file: file, line: line)
         }
