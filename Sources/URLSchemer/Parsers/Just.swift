@@ -1,5 +1,5 @@
 extension Parsers {
-    public struct Just<Output>: Parser
+    public struct Just<Output>: ActionParser
     where Output: Action {
         public typealias Input = Void
 
@@ -19,7 +19,7 @@ extension Parsers {
     }
 }
 
-extension Parser where Input == Void {
+extension ActionParser where Input == Void {
     @inlinable
     @inline(__always)
     public func parse() rethrows -> Output {

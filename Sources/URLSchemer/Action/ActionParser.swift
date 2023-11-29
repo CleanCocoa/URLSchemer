@@ -1,4 +1,4 @@
-@rethrows public protocol Parser<Input, Output> {
+@rethrows public protocol ActionParser<Input, Output> {
     associatedtype Input
     associatedtype Output: Action
 

@@ -1,4 +1,4 @@
-extension Parser {
+extension ActionParser {
     @inlinable
     public func map<NewAction: Action>(
         transform: @escaping (Self.Output) -> NewAction
@@ -8,7 +8,7 @@ extension Parser {
 }
 
 extension Parsers {
-    public struct Map<Upstream: Parser, NewAction: Action>: Parser {
+    public struct Map<Upstream: ActionParser, NewAction: Action>: ActionParser {
         public typealias Input = Upstream.Input
 
         public let upstream: Upstream
