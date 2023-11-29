@@ -19,10 +19,10 @@ extension Action where Self == StringAction {
     }
 }
 
-final class ActionTests: XCTestCase {
-    func action(urlComponents string: String) throws -> StringAction? {
+final class StringActionTests: XCTestCase {
+    func action(urlComponents string: String) throws -> StringAction {
         let urlComponents = try XCTUnwrap(URLComponents(string: string))
-        return StringAction(urlComponents: urlComponents)
+        return try Parsers.URLComponentsParser().parse(urlComponents)
     }
 
     func testFromURLComponents_WithoutPayload() throws {
@@ -32,9 +32,9 @@ final class ActionTests: XCTestCase {
                        StringAction(module: "host", subject: "path1", verb: "path2", object: "path3"))
         XCTAssertEqual(try action(urlComponents: "protocol://host/path1/path2"),
                        StringAction(module: "host", subject: "path1", verb: "path2"))
-        XCTAssertNil(try action(urlComponents: "protocol://host/path1"))
-        XCTAssertNil(try action(urlComponents: "protocol://host"))
-        XCTAssertNil(try action(urlComponents: "protocol://"))
+        XCTAssertThrowsError(try action(urlComponents: "protocol://host/path1"))
+        XCTAssertThrowsError(try action(urlComponents: "protocol://host"))
+        XCTAssertThrowsError(try action(urlComponents: "protocol://"))
     }
 
     func testFromURLComponents_WithPayload() throws {
@@ -44,8 +44,8 @@ final class ActionTests: XCTestCase {
                        StringAction(module: "host", subject: "path1", verb: "path2", object: "path3", payload: ["foo":"baz"]))
         XCTAssertEqual(try action(urlComponents: "protocol://host/path1/path2?key=var"),
                        StringAction(module: "host", subject: "path1", verb: "path2", payload: ["key":"var"]))
-        XCTAssertNil(try action(urlComponents: "protocol://host/path1?irrelevant=yes"))
-        XCTAssertNil(try action(urlComponents: "protocol://host?irrelevant=yes"))
-        XCTAssertNil(try action(urlComponents: "protocol://?irrelevant=yes"))
+        XCTAssertThrowsError(try action(urlComponents: "protocol://host/path1?irrelevant=yes"))
+        XCTAssertThrowsError(try action(urlComponents: "protocol://host?irrelevant=yes"))
+        XCTAssertThrowsError(try action(urlComponents: "protocol://?irrelevant=yes"))
     }
 }

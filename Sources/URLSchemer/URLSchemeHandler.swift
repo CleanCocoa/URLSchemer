@@ -1,5 +1,8 @@
 import AppKit
 
+public typealias Sink<Value> = (Value) -> Void
+public typealias ThrowingSink<Value> = (Value) throws -> Void
+
 /// Convenience type to register as the `NSAppleEventManager`'s URL scheme event handler.
 ///
 /// Use this if your app doesn't register e.g. its `AppDelegate` to handle URL schemes already:
@@ -10,7 +13,7 @@ import AppKit
 ///
 /// You can also use the shorthand `URLSchemeHandler().install()`.
 public final class URLSchemeHandler {
-    public typealias ActionHandler = (StringAction) -> Void
+    public typealias ActionHandler = Sink<ThrowingSink<ThrowingSink<StringAction>>>
     public typealias URLEventHandler = (_ event: NSAppleEventDescriptor, _ replyEvent: NSAppleEventDescriptor) -> Void
 
     let actionHandler: ActionHandler
@@ -36,11 +39,14 @@ public final class URLSchemeHandler {
         getUrlEvent event: NSAppleEventDescriptor,
         withReplyEvent replyEvent: NSAppleEventDescriptor
     ) {
-        if let urlComponents = event.urlComponents,
-           let action = StringAction(urlComponents: urlComponents) {
-            actionHandler(action)
+        if let urlComponents = event.urlComponents {
+            actionHandler { callback in
+                let action = try Parsers.URLComponentsParser().parse(urlComponents)
+                try callback(action)
+            }
         } else {
             fallbackEventHandler?(event, replyEvent)
         }
     }
 }
+
