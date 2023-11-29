@@ -7,7 +7,7 @@ extension Action {
         subject: String,
         verb: String,
         object: String? = nil,
-        payload: Dictionary<String, String?>? = nil
+        payload: Payload? = nil
     ) {
         self.init(
             module: .init(moduleName),

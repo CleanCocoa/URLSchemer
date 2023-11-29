@@ -10,14 +10,14 @@ public struct Action: Equatable {
 
     public let object: String?
 
-    public let payload: Dictionary<String, String?>?
+    public let payload: Payload?
 
     public init(
         module: Module,
         subject: String,
         verb: String,
         object: String? = nil,
-        payload: Dictionary<String, String?>? = nil
+        payload: Payload? = nil
     ) {
         self.module = module
         self.subject = subject
