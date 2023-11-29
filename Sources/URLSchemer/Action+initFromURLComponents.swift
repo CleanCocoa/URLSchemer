@@ -35,6 +35,9 @@ extension Dictionary {
 extension URLComponents {
     /// Path components **without the leading `/`**.
     fileprivate var pathComponents: [String]? {
-        return self.url.map { Array($0.pathComponents.dropFirst()) }
+        return self.url
+            .map(\.pathComponents)
+            .map{$0.dropFirst()}
+            .map{Array($0)}
     }
 }
