@@ -10,7 +10,8 @@ import AppKit
 ///
 /// You can also use the shorthand `URLSchemeHandler().install()`.
 public final class URLSchemeHandler {
-    public typealias ActionHandler = (_ g: @escaping (_ f: @escaping (StringAction) -> Void) throws -> Void) throws -> Void
+    public typealias StringActionSink = Sink<StringAction>
+    public typealias ActionHandler = (_ g: @escaping (_ sink: any StringActionSink) throws -> Void) throws -> Void
     public typealias URLEventHandler = (_ event: NSAppleEventDescriptor, _ replyEvent: NSAppleEventDescriptor) -> Void
 
     let actionHandler: ActionHandler
@@ -43,8 +44,9 @@ public final class URLSchemeHandler {
 
         do {
             try actionHandler { sink in
-                let action = try Parsers.URLComponentsParser().parse(urlComponents)
-                sink(action)
+                try Parsers.URLComponentsParser()
+                    .parse(urlComponents)
+                    .do(sink)
             }
         } catch {
             fallbackEventHandler?(event, replyEvent)
