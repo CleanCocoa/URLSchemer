@@ -1,15 +1,15 @@
 import URLSchemer
 import XCTest
 
-final class UnaryMapTests: XCTestCase {
-    func testFoo() {
+final class BimapTests: XCTestCase {
+    func testSuccess() {
         let action = GenericAction(
             module: "module",
             subject: "subject",
             verb: "verb"
         )
         
-        let mapped = action.map(
+        let mapped = action.bimap(
             transformSubject: \.count,
             transformVerb: { $0.sorted() }
         )

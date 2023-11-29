@@ -1,6 +1,6 @@
 extension SubjectVerbAction {
     @inlinable
-    public func map<NewSubject, NewVerb>(
+    public func bimap<NewSubject, NewVerb>(
         transformSubject: @escaping (Self.Subject) -> NewSubject,
         transformVerb: @escaping (Self.Verb) -> NewVerb
     ) -> Actions.UnaryMap<Self, NewSubject, NewVerb> {
@@ -13,7 +13,7 @@ extension SubjectVerbAction {
 
     @inlinable
     public func map<NewSubject>(
-        transformSubject: @escaping (Self.Subject) -> NewSubject
+        _ transformSubject: @escaping (Self.Subject) -> NewSubject
     ) -> Actions.UnaryMap<Self, NewSubject, Self.Verb> {
         .init(
             upstream: self,
@@ -23,7 +23,7 @@ extension SubjectVerbAction {
 
     @inlinable
     public func map<NewVerb>(
-        transformVerb: @escaping (Self.Verb) -> NewVerb
+        _ transformVerb: @escaping (Self.Verb) -> NewVerb
     ) -> Actions.UnaryMap<Self, Self.Subject, NewVerb> {
         .init(
             upstream: self,
