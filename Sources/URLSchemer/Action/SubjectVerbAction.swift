@@ -1,4 +1,4 @@
-public protocol UnaryAction {
+public protocol SubjectVerbAction {
     associatedtype Subject
     associatedtype Verb
 

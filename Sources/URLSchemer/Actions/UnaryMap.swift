@@ -1,4 +1,4 @@
-extension UnaryAction {
+extension SubjectVerbAction {
     @inlinable
     public func map<NewSubject, NewVerb>(
         transformSubject: @escaping (Self.Subject) -> NewSubject,
@@ -33,8 +33,8 @@ extension UnaryAction {
 }
 
 extension Actions {
-    public struct UnaryMap<Upstream, NewSubject, NewVerb>: UnaryAction
-    where Upstream: UnaryAction {
+    public struct UnaryMap<Upstream, NewSubject, NewVerb>: SubjectVerbAction
+    where Upstream: SubjectVerbAction {
         public let upstream: Upstream
         public let transformSubject: (Upstream.Subject) -> NewSubject
         public let transformVerb: (Upstream.Verb) -> NewVerb
