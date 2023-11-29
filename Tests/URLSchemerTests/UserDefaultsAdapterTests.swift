@@ -1,14 +1,6 @@
 @testable import URLSchemer
 import XCTest
 
-extension UserDefaults {
-    func removeAll() {
-        for (key, _) in dictionaryRepresentation() {
-            removeObject(forKey: key)
-        }
-    }
-}
-
 final class UserDefaultsAdapterTests: XCTestCase {
     lazy var defaults: UserDefaults = UserDefaults(suiteName: String(describing: type(of: Self.self)))!
 
