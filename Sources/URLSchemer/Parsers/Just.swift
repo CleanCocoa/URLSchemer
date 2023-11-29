@@ -1,5 +1,6 @@
 extension Parsers {
-    public struct Just<Output>: Parser {
+    public struct Just<Output>: Parser
+    where Output: SubjectVerbAction {
         public typealias Input = Void
 
         @usableFromInline
