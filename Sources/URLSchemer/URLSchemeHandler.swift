@@ -10,7 +10,6 @@ import AppKit
 ///
 /// You can also use the shorthand `URLSchemeHandler().install()`.
 public final class URLSchemeHandler {
-    public typealias ActionHandler = (Action) -> Void
     public typealias URLEventHandler = (_ event: NSAppleEventDescriptor, _ replyEvent: NSAppleEventDescriptor) -> Void
 
     let actionHandler: ActionHandler

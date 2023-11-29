@@ -32,13 +32,6 @@ extension Dictionary {
     }
 }
 
-extension Array<String> {
-    fileprivate mutating func popFirst() -> String? {
-        defer { self = Array(dropFirst()) }
-        return first
-    }
-}
-
 extension URLComponents {
     /// Path components **without the leading `/`**.
     fileprivate var pathComponents: [String]? {
