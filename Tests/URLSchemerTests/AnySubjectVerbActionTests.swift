@@ -11,12 +11,15 @@ final class AnySubjectVerbActionTests: XCTestCase {
             let payload: Payload? = nil
         }
 
-        let action = ActionStub(
-            module: .init("module"),
-            subject: "subject",
-            verb: "verb",
-            payload: ["a":"1"]
-        ).map { _ in ConstBananaAction() }
+        let action = Parsers
+            .Just(ActionStub(
+                module: .init("module"),
+                subject: "subject",
+                verb: "verb",
+                payload: ["a":"1"]
+            ))
+            .map { _ in ConstBananaAction() }
+            .parse()
 
         let expected = AnySubjectVerbAction(
             module: .init("banana"),
@@ -24,7 +27,7 @@ final class AnySubjectVerbActionTests: XCTestCase {
             verb: "eat",
             payload: nil
         )
-        XCTAssertEqual(action.apply().eraseToAnySubjectVerbAction(), expected)
+        XCTAssertEqual(action.eraseToAnySubjectVerbAction(), expected)
     }
 
     func testAnySubjectVerbActionEraseToAnySubjectVerbAction() {
