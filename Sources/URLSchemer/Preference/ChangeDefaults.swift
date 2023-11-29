@@ -12,3 +12,13 @@ where Value: _UserDefaultsValue {
         self.value = value
     }
 }
+
+extension ChangeDefaults: Equatable where Value: Equatable { }
+
+extension ChangeDefaults: SubjectVerbObjectAction {
+    public var module: Module { .preference }
+    public var subject: String { key }
+    public var verb: String { "set" }
+    public var object: Value { value }
+    public var payload: Payload? { nil }
+}
