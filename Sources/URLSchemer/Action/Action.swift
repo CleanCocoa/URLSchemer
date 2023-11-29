@@ -1,18 +1,3 @@
-protocol UnaryAction {
-    associatedtype Subject
-    associatedtype Verb
-
-    var module: Module { get }
-    var subject: Subject { get }
-    var verb: Verb { get }
-    var payload: Payload? { get }
-}
-
-protocol BinaryAction: UnaryAction {
-    associatedtype Object
-    var object: Object { get }
-}
-
 public typealias Action = GenericAction
 
 /// Parsed command from a URL.
