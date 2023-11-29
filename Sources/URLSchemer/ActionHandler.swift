@@ -1,1 +1,1 @@
-public typealias ActionHandler = (Action) -> Void
+public typealias ActionHandler = (any Action) -> Void

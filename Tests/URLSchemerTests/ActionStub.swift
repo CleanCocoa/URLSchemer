@@ -1,6 +1,6 @@
 import URLSchemer
 
-struct ActionStub: SubjectVerbObjectAction, Equatable {
+struct ActionStub: Action, Equatable {
     var module: Module = .init("module")
     var subject = "subject"
     var verb = "verb"

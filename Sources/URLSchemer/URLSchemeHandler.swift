@@ -10,6 +10,7 @@ import AppKit
 ///
 /// You can also use the shorthand `URLSchemeHandler().install()`.
 public final class URLSchemeHandler {
+    public typealias ActionHandler = (StringAction) -> Void
     public typealias URLEventHandler = (_ event: NSAppleEventDescriptor, _ replyEvent: NSAppleEventDescriptor) -> Void
 
     let actionHandler: ActionHandler
@@ -36,7 +37,7 @@ public final class URLSchemeHandler {
         withReplyEvent replyEvent: NSAppleEventDescriptor
     ) {
         if let urlComponents = event.urlComponents,
-           let action = Action(urlComponents: urlComponents) {
+           let action = StringAction(urlComponents: urlComponents) {
             actionHandler(action)
         } else {
             fallbackEventHandler?(event, replyEvent)

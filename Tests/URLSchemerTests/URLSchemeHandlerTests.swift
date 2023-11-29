@@ -28,7 +28,7 @@ final class URLSchemeHandlerTests: XCTestCase {
         let actionHandledExpectation = expectation(description: "actionHandler called")
         let sut = URLSchemeHandler(
             actionHandler: { action in
-                XCTAssertEqual(action, Action(module: "module", subject: "subject", verb: "verb", object: "object"))
+                XCTAssertEqual(action, StringAction(module: "module", subject: "subject", verb: "verb", object: "object"))
                 actionHandledExpectation.fulfill()
             },
             fallbackEventHandler: { _, _ in

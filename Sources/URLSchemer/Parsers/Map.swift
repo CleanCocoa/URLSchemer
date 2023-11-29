@@ -1,6 +1,6 @@
 extension Parser {
     @inlinable
-    public func map<NewAction: SubjectVerbAction>(
+    public func map<NewAction: Action>(
         transform: @escaping (Self.Output) -> NewAction
     ) -> Parsers.Map<Self, NewAction> {
         .init(upstream: self, transform: transform)
@@ -8,16 +8,16 @@ extension Parser {
 }
 
 extension Parsers {
-    public struct Map<Upstream: Parser, Output: SubjectVerbAction>: Parser {
+    public struct Map<Upstream: Parser, NewAction: Action>: Parser {
         public typealias Input = Upstream.Input
 
         public let upstream: Upstream
-        public let transform: (Upstream.Output) -> Output
+        public let transform: (Upstream.Output) -> NewAction
 
         @inlinable
         public init(
             upstream: Upstream,
-            transform: @escaping (Upstream.Output) -> Output
+            transform: @escaping (Upstream.Output) -> NewAction
         ) {
             self.upstream = upstream
             self.transform = transform
@@ -25,7 +25,7 @@ extension Parsers {
 
         @inlinable
         @inline(__always)
-        public func parse(_ input: Upstream.Input) rethrows -> Output {
+        public func parse(_ input: Upstream.Input) rethrows -> NewAction {
             self.transform(try self.upstream.parse(input))
         }
     }

@@ -15,7 +15,7 @@ where Value: _UserDefaultsValue {
 
 extension ChangeDefaults: Equatable where Value: Equatable { }
 
-extension ChangeDefaults: SubjectVerbObjectAction {
+extension ChangeDefaults: Action {
     public var module: Module { .preference }
     public var subject: String { key }
     public var verb: String { "set" }

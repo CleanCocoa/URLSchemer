@@ -6,9 +6,10 @@ public struct DeleteDefaults: Equatable {
     }
 }
 
-extension DeleteDefaults: SubjectVerbAction {
+extension DeleteDefaults: Action {   
     public var module: Module { .preference }
     public var subject: String { key }
     public var verb: String { "delete" }
+    public var object: () { () }
     public var payload: Payload? { nil }
 }
