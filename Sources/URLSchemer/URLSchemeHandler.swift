@@ -44,7 +44,7 @@ public final class URLSchemeHandler {
 
         do {
             try actionHandler { sink in
-                try Parsers.URLComponentsParser()
+                try URLComponentsParser()
                     .parse(urlComponents)
                     .do(sink)
             }

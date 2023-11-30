@@ -22,7 +22,7 @@ extension Action where Self == StringAction {
 final class StringActionTests: XCTestCase {
     func action(urlComponents string: String) throws -> StringAction {
         let urlComponents = try XCTUnwrap(URLComponents(string: string))
-        return try Parsers.URLComponentsParser().parse(urlComponents)
+        return try URLComponentsParser().parse(urlComponents)
     }
 
     func testFromURLComponents_WithoutPayload() throws {
