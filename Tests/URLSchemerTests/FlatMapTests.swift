@@ -23,12 +23,6 @@ final class FlatMapTests: XCTestCase {
         }
     }
 
-    struct PassthroughParser<Input: Action>: ActionParser {
-        func parse(_ input: Input) throws -> some Action {
-            input
-        }
-    }
-
     func testSuccess() {
         let result = Just(ActionStub(subject: "apple"))
             .flatMap {

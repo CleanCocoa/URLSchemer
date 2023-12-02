@@ -3,7 +3,7 @@ import XCTest
 
 final class AppControlParserTests: XCTestCase {
     func testTerminate() throws {
-        let action = try URLComponents.parser.flatMap {
+        let action = try URLComponentsParser().flatMap {
             AppControlParser()
         }.parse(XCTUnwrap(URLComponents(string: "example://app/control/terminate")))
 

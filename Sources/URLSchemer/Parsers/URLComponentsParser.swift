@@ -11,6 +11,28 @@ extension URLComponents {
     }
 }
 
+extension URLComponents {
+    public func parse<Parsers: ActionParser, Output: Action>(
+        @OneOfBuilder<StringAction, Output> _ build: () -> Parsers
+    ) rethrows -> Output
+    where Parsers.Input == StringAction, Parsers.Output == Output
+    {
+        return try Self.parse(self, build)
+    }
+
+    public static func parse<Parsers: ActionParser, Output: Action>(
+        _ input: URLComponents,
+        @OneOfBuilder<StringAction, Output> _ build: () -> Parsers
+    ) rethrows -> Output
+    where Parsers.Input == StringAction, Parsers.Output == Output
+    {
+        let combined = parser.flatMap {
+            OneOf(build)
+        }
+        return try combined.parse(input)
+    }
+}
+
 public struct URLComponentsParser: ActionParser {
     @inlinable
     public init() { }
