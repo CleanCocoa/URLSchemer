@@ -1,21 +1,19 @@
-extension Parsers {
-    public struct Just<Output>: ActionParser
-    where Output: Action {
-        public typealias Input = Void
+public struct Just<Output>: ActionParser
+where Output: Action {
+    public typealias Input = Void
 
-        @usableFromInline
-        let generator: () -> Output
+    @usableFromInline
+    let generator: () -> Output
 
-        @inlinable
-        public init(_ output: @autoclosure @escaping () -> Output) {
-            self.generator = output
-        }
+    @inlinable
+    public init(_ output: @autoclosure @escaping () -> Output) {
+        self.generator = output
+    }
 
-        @inlinable
-        @inline(__always)
-        public func parse(_ input: Void) -> Output {
-            generator()
-        }
+    @inlinable
+    @inline(__always)
+    public func parse(_ input: Void) -> Output {
+        generator()
     }
 }
 

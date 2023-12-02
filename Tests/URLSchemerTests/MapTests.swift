@@ -3,8 +3,7 @@ import XCTest
 
 final class MapTests: XCTestCase {
     func testMapAction() throws {
-        let action = Parsers
-            .Just(ActionStub(subject: "name"))
+        let action = Just(ActionStub(subject: "name"))
             .map { DeleteDefaults(key: $0.subject) }
             .parse()
 
