@@ -2,8 +2,6 @@ import URLSchemer
 import XCTest
 
 final class OneOfTests: XCTestCase {
-    struct TestError: Error {}
-
     struct ParsedNumber: Action, Equatable {
         let module: Module = .init("tests")
         let subject = "test"
