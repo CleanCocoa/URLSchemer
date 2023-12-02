@@ -1,3 +1,6 @@
+/// Parsed action with as many URL components as possible extracted into strings.
+///
+/// This is usually the first parsing step. Since URL components are string-based anyway, this transforms the unstructured URL into an expected format.
 public struct StringAction: Action, Equatable {
     public let module: URLSchemer.Module
     public let subject: String
@@ -19,5 +22,32 @@ public struct StringAction: Action, Equatable {
         self.verb = verb
         self.object = object
         self.payload = payload
+    }
+}
+
+extension StringAction {
+    /// Produces a copy of `self` with all properties lowercased. Applies to ``Payload`` keys and values as well.
+    public func lowercased() -> Self {
+        assert(module.rawValue == module.rawValue.lowercased(),
+               "Module names are already lowercased for matching")
+        return StringAction(
+            module: module,
+            subject: subject.lowercased(),
+            verb: verb.lowercased(),
+            object: object?.lowercased(),
+            payload: payload?.map { ($0.lowercased(), $1?.lowercased()) }
+        )
+    }
+}
+
+fileprivate extension Dictionary {
+    /// Transforms the dictionary into a new dictionary.
+    ///
+    /// - Parameter transform: A mapping closure. `transform` accepts an element tuple of this dictionary as `key` and `value` and returns a transformed tuple of the same or of different types.
+    /// - Note: Every `key` from applying `transform`should be unique. Otherwise the last occurrence overwrites previous occurrences (the order is non-deterministic in dictionaries.).
+    func map<NewKey, NewValue>(
+        _ transform: ((key: Key, value: Value)) -> (NewKey, NewValue)
+    ) -> [NewKey : NewValue] where NewKey: Hashable {
+        return Dictionary<NewKey, NewValue>(self.map(transform), uniquingKeysWith: { _, last in last })
     }
 }

@@ -48,4 +48,21 @@ final class StringActionTests: XCTestCase {
         XCTAssertThrowsError(try action(urlComponents: "protocol://host?irrelevant=yes"))
         XCTAssertThrowsError(try action(urlComponents: "protocol://?irrelevant=yes"))
     }
+
+    func testLowercased() {
+        XCTAssertEqual(
+            StringAction(module: "MODULE", subject: "SUBJECT", verb: "VERB", object: "OBJECT", payload: ["KEY":"VALUE"]).lowercased(),
+            StringAction(module: "module", subject: "subject", verb: "verb", object: "object", payload: ["key":"value"])
+        )
+
+        XCTAssertEqual(
+            StringAction(module: "MODULE", subject: "SUBJECT", verb: "VERB", object: "OBJECT", payload: nil).lowercased(),
+            StringAction(module: "module", subject: "subject", verb: "verb", object: "object", payload: nil)
+        )
+
+        XCTAssertEqual(
+            StringAction(module: "MODULE", subject: "SUBJECT", verb: "VERB", object: nil, payload: nil).lowercased(),
+            StringAction(module: "module", subject: "subject", verb: "verb", object: nil, payload: nil)
+        )
+    }
 }
