@@ -1,3 +1,7 @@
+extension Parsers {
+    public typealias Just = URLSchemer.Just
+}
+
 public struct Just<Output>: ActionParser
 where Output: Action {
     public typealias Input = Void

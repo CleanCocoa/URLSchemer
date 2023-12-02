@@ -1,5 +1,9 @@
 import Foundation
 
+extension Parsers {
+    public typealias URLComponentsParser = URLSchemer.URLComponentsParser
+}
+
 public struct URLComponentsParser: ActionParser {
     @inlinable
     @inline(__always)
