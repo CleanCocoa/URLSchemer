@@ -4,7 +4,17 @@ extension Parsers {
     public typealias URLComponentsParser = URLSchemer.URLComponentsParser
 }
 
+extension URLComponents {
+    @inlinable
+    public static var parser: URLComponentsParser {
+        .init()
+    }
+}
+
 public struct URLComponentsParser: ActionParser {
+    @inlinable
+    public init() { }
+
     @inlinable
     @inline(__always)
     public func parse(_ urlComponents: URLComponents) throws -> StringAction {

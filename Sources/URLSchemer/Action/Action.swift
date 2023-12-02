@@ -15,3 +15,19 @@ public protocol Action<Module, Subject, Verb, Object> {
     var object: Object { get }
     var payload: Payload? { get }
 }
+
+extension Action {
+    /// - Return:  A tuple of `(module, subject, verb)` for pattern matching.
+    @inlinable
+    @inline(__always)
+    public func moduleSubjectVerb() -> (module: Module, subject: Subject, verb: Verb) {
+        (module, subject, verb)
+    }
+
+    /// - Return:  A tuple of `(module, subject, verb, object)` for pattern matching.
+    @inlinable
+    @inline(__always)
+    public func moduleSubjectVerbObject() -> (module: Module, subject: Subject, verb: Verb, object: Object) {
+        (module, subject, verb, object)
+    }
+}
