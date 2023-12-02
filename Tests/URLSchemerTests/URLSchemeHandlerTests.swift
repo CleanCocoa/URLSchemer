@@ -57,12 +57,14 @@ final class URLSchemeHandlerTests: XCTestCase {
                     try factory(AnySink { _ in
                         XCTFail("unexpected callback for invalid action")
                     })
-                } catch let parsingError as ActionParsingError {
-                    XCTAssert(parsingError == ActionParsingError.failed)
-                    throw parsingError
                 } catch {
-                    XCTFail("Unexpected error: \(error)")
-                    throw error
+                    switch error {
+                    case ActionParsingError.failed:
+                        throw error // Happy path   
+                    default:
+                        XCTFail("Unexpected error: \(error)")
+                        throw error
+                    }
                 }
             },
             fallbackEventHandler: {

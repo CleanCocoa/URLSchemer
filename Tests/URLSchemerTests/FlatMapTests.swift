@@ -23,14 +23,6 @@ final class FlatMapTests: XCTestCase {
         }
     }
 
-    struct Fail<Input, Output: Action>: ActionParser {
-        let error: Error
-
-        func parse(_ input: Input) throws -> Output {
-            throw error
-        }
-    }
-
     struct PassthroughParser<Input: Action>: ActionParser {
         func parse(_ input: Input) throws -> some Action {
             input
@@ -62,11 +54,11 @@ final class FlatMapTests: XCTestCase {
         XCTAssertThrowsError(
             try Just(ActionStub())
                 .flatMap {
-                    Fail<ActionStub, ActionStub>(error: TestError())
+                    Fail<ActionStub, ActionStub>(error: TestError("custom error"))
                 }
                 .parse(())
         ) { error in
-            XCTAssert(type(of: error) == TestError.self)
+            XCTAssertEqual("\(error)", "custom error")
         }
     }
 }
