@@ -3,16 +3,16 @@ extension ActionParser {
     ///
     /// This is favorable over ``Lazy\map(_:)`` to not capture references strongly in an escaping lazy closure.
     @inlinable
-    public func map<NewParser>(
+    public func flatMap<NewParser>(
         _ transform: () -> NewParser
-    ) -> Parsers.MapParsers<Self, NewParser>
+    ) -> Parsers.FlatMap<Self, NewParser>
     where NewParser: ActionParser {
         .init(upstream: self, downstream: transform())
     }
 }
 
 extension Parsers {
-    public struct MapParsers<Upstream: ActionParser, Downstream: ActionParser>
+    public struct FlatMap<Upstream: ActionParser, Downstream: ActionParser>
     where Upstream.Output == Downstream.Input {
         public typealias Input = Upstream.Input
         public typealias Output = Downstream.Output
@@ -43,9 +43,9 @@ extension Lazy {
     /// Transforms the output of `self` to the input of `NewParser`, deferring execution until ``parse(_:)`` is called.
     @_disfavoredOverload
     @inlinable
-    public func map<NewParser>(
+    public func flatMap<NewParser>(
         _ downstreamFactory: @escaping () -> NewParser
-    ) -> Parsers.LazyMapParsers<Self.Base, NewParser>
+    ) -> Parsers.LazyFlatMap<Self.Base, NewParser>
     where NewParser: ActionParser {
         .init(upstream: self.base, downstreamFactory: downstreamFactory)
     }
@@ -53,7 +53,7 @@ extension Lazy {
 
 
 extension Parsers {
-    public struct LazyMapParsers<Upstream: ActionParser, Downstream: ActionParser>
+    public struct LazyFlatMap<Upstream: ActionParser, Downstream: ActionParser>
     where Upstream.Output == Downstream.Input {
         public typealias Input = Upstream.Input
         public typealias Output = Downstream.Output
@@ -76,5 +76,4 @@ extension Parsers {
             return try self.downstreamFactory().parse(self.upstream.parse(input))
         }
     }
-
 }
