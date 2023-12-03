@@ -1,3 +1,7 @@
+extension Parsers {
+    public typealias OneOf = URLSchemer.OneOf
+}
+
 /// Attempts to run each of its `parsers` until one succeeds, or fails if every parser inside fails.
 ///
 /// ## Ordering is important
@@ -70,9 +74,9 @@ extension OneOfBuilder {
         public let parser2: Parser2
 
         @inlinable
-        public init(_ p0: Parser1, _ p1: Parser2) {
-            self.parser1 = p0
-            self.parser2 = p1
+        public init(_ parser1: Parser1, _ parser2: Parser2) {
+            self.parser1 = parser1
+            self.parser2 = parser2
         }
 
         @inlinable
