@@ -20,8 +20,11 @@ extension Action where Self == StringAction {
 }
 
 final class StringActionTests: XCTestCase {
-    func action(urlComponents string: String) throws -> StringAction {
-        let urlComponents = try XCTUnwrap(URLComponents(string: string))
+    func action(
+        urlComponents string: String,
+        file: StaticString = #file, line: UInt = #line
+    ) throws -> StringAction {
+        let urlComponents = try XCTUnwrap(URLComponents(string: string), file: file, line: line)
         return try URLComponentsParser().parse(urlComponents)
     }
 
