@@ -83,12 +83,16 @@ extension OneOfBuilder {
         public func parse(_ input: Input) rethrows -> Output {
             do {
                 return try self.parser1.parse(input)
-            } catch {
+            } catch ActionParsingError.failed {
                 do {
                     return try self.parser2.parse(input)
-                } catch {
+                } catch ActionParsingError.failed {
                     throw ActionParsingError.failed
+                } catch {
+                    throw ActionParsingError.wrapping(error)
                 }
+            } catch {
+                throw ActionParsingError.wrapping(error)
             }
         }
     }

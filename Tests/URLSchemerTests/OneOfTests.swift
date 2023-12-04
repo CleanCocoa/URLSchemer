@@ -18,7 +18,7 @@ final class OneOfTests: XCTestCase {
             guard input > 0,
                   (input % 2) == 1
             else {
-                throw TestError()
+                throw ActionParsingError.failed
             }
             return ParsedNumber(object: input)
         }
@@ -32,7 +32,7 @@ final class OneOfTests: XCTestCase {
             guard input > 0,
                   (input % 2) == 0
             else {
-                throw TestError()
+                throw ActionParsingError.failed
             }
             return ParsedNumber(object: input)
         }
@@ -46,13 +46,34 @@ final class OneOfTests: XCTestCase {
         XCTAssertEqual(result, ParsedNumber(object: 1))
     }
 
-    func testOneOf_OneExpression_Fails() {
+    func testOneOf_OneExpression_FailsParsing() {
         XCTAssertThrowsError(
             try OneOf {
                 OddPositiveNumberParser()
             }.parse(2)
         ) { error in
-            XCTAssert(type(of: error) == TestError.self)
+            switch error {
+            case ActionParsingError.failed:
+                break // Happy path
+            default:
+                XCTFail("Expected ActionParsingError.failed but got \(type(of: error))")
+            }
+        }
+    }
+
+    func testOneOf_OneExpression_FailsForRealError() {
+        XCTAssertThrowsError(
+            try OneOf {
+                Fail<Int, ActionStub>(error: TestError("real failure"))
+            }.parse(2)
+        ) { error in
+            switch error {
+            case ActionParsingError.wrapping(let wrapped):
+                XCTAssert(type(of: wrapped) == TestError.self)
+                XCTAssertEqual("\(wrapped)", "real failure")
+            default:
+                XCTFail("Expected .wrapping error but got \(type(of: error))")
+            }
         }
     }
 
@@ -81,9 +102,12 @@ final class OneOfTests: XCTestCase {
                 EvenPositiveNumberParser()
             }.parse(-99)
         ) { error in
-            XCTAssert(type(of: error) == ActionParsingError.self,
-                      "Wraps failure in ActionParsingError")
+            switch error {
+            case ActionParsingError.failed:
+                break // Happy path
+            default:
+                XCTFail("Expected ActionParsingError.failed but got \(type(of: error))")
+            }
         }
     }
-
 }
