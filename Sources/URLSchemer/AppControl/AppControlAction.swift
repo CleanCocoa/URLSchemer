@@ -11,6 +11,13 @@ public struct AppControlAction: Equatable {
     public init(_ command: Command) {
         self.command = command
     }
+
+    @inlinable
+    public func run() {
+        switch command {
+        case .terminate: subject.terminate(nil)
+        }
+    }
 }
 
 extension AppControlAction: Action {
