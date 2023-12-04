@@ -33,14 +33,14 @@ extension AppDelegate {
     }
     
     private func execute(_ action: StringAction) {
-        switch (action.module, action.subject, action.verb, action.object) {
+        switch action.moduleSubjectVerbObject() {
         // Handle ://plugin/PLUGIN_NAME/run actions
         case (.plugin, _, "run", nil): 
             execute(pluginNamed: action.subject)
         
         // Handle ://preference/KEY/set/VALUE 
         // and ://preference/KEY/unset actions (built-in module)
-        case (.preference, let key, "set", let value): 
+        case (.preference, let key, "set", .some(let value)): 
             UserDefaults.standard.set(value, forKey: key)
         case (.preference, let key, "unset", nil):
             UserDefaults.standard.removeObject(forKey: key)
