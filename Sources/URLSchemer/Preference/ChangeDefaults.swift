@@ -21,4 +21,8 @@ extension ChangeDefaults: Action {
     public var verb: String { "set" }
     public var object: Value { value }
     public var payload: Payload? { nil }
+
+    public static func parser() -> ChangeDefaultsParser<Value> {
+        ChangeDefaultsParser()
+    }
 }

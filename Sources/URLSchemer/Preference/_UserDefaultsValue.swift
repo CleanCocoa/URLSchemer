@@ -1,5 +1,9 @@
+public protocol FromURLComponentInitializable {
+    init?(_fromURLComponent string: String)
+}
+
 /// Marks types as compatible with `UserDefaults.set(_:forKey:)` serialization.
-public protocol _UserDefaultsValue {
+public protocol _UserDefaultsValue: FromURLComponentInitializable {
     func save(in defaults: UserDefaults, key: String)
 }
 
@@ -16,27 +20,89 @@ extension _PrimitiveUserDefaultsValue {
 
 // MARK: Primitive types
 
-extension Bool: _PrimitiveUserDefaultsValue { }
+extension Bool: _PrimitiveUserDefaultsValue {
+    public init?(_fromURLComponent string: String) {
+        self.init(string)
+    }
+}
 
-extension UInt: _PrimitiveUserDefaultsValue { }
-extension UInt64: _PrimitiveUserDefaultsValue { }
-extension UInt32: _PrimitiveUserDefaultsValue { }
-extension UInt16: _PrimitiveUserDefaultsValue { }
-extension UInt8: _PrimitiveUserDefaultsValue { }
+extension UInt: _PrimitiveUserDefaultsValue {
+    public init?(_fromURLComponent string: String) {
+        self.init(string)
+    }
+}
+extension UInt64: _PrimitiveUserDefaultsValue {
+    public init?(_fromURLComponent string: String) {
+        self.init(string)
+    }
+}
+extension UInt32: _PrimitiveUserDefaultsValue {
+    public init?(_fromURLComponent string: String) {
+        self.init(string)
+    }
+}
+extension UInt16: _PrimitiveUserDefaultsValue {
+    public init?(_fromURLComponent string: String) {
+        self.init(string)
+    }
+}
+extension UInt8: _PrimitiveUserDefaultsValue {
+    public init?(_fromURLComponent string: String) {
+        self.init(string)
+    }
+}
 
-extension Int: _PrimitiveUserDefaultsValue { }
-extension Int64: _PrimitiveUserDefaultsValue { }
-extension Int32: _PrimitiveUserDefaultsValue { }
-extension Int16: _PrimitiveUserDefaultsValue { }
-extension Int8: _PrimitiveUserDefaultsValue { }
+extension Int: _PrimitiveUserDefaultsValue {
+    public init?(_fromURLComponent string: String) {
+        self.init(string)
+    }
+}
+extension Int64: _PrimitiveUserDefaultsValue {
+    public init?(_fromURLComponent string: String) {
+        self.init(string)
+    }
+}
+extension Int32: _PrimitiveUserDefaultsValue {
+    public init?(_fromURLComponent string: String) {
+        self.init(string)
+    }
+}
+extension Int16: _PrimitiveUserDefaultsValue {
+    public init?(_fromURLComponent string: String) {
+        self.init(string)
+    }
+}
+extension Int8: _PrimitiveUserDefaultsValue {
+    public init?(_fromURLComponent string: String) {
+        self.init(string)
+    }
+}
 
-extension Double: _PrimitiveUserDefaultsValue { }
-extension Float32: _PrimitiveUserDefaultsValue { }
+extension Double: _PrimitiveUserDefaultsValue {
+    public init?(_fromURLComponent string: String) {
+        self.init(string)
+    }
+}
+extension Float32: _PrimitiveUserDefaultsValue {
+    public init?(_fromURLComponent string: String) {
+        self.init(string)
+    }
+}
+
 // Note that `Float16` is not a valid property list object and will raise a `NSInvalidArgumentException` as of 2023-11-28.
 
-extension String: _PrimitiveUserDefaultsValue { }
+extension String: _PrimitiveUserDefaultsValue { 
+    public init?(_fromURLComponent string: String) {
+        self = string
+    }
+}
 
-extension Data: _PrimitiveUserDefaultsValue { }
+extension Data: _PrimitiveUserDefaultsValue {
+    public init?(_fromURLComponent string: String) {
+        guard let data = string.data(using: .utf8) else { return nil }
+        self = data
+    }
+}
 
 // MARK: Collections
 
@@ -51,7 +117,11 @@ protocol _OptionalUserDefaultsValue: _UserDefaultsValue {
     var wrapped: Wrapped? { get }
 }
 
-extension Optional: _UserDefaultsValue where Wrapped: _UserDefaultsValue {
+extension Optional: _UserDefaultsValue, FromURLComponentInitializable where Wrapped: _UserDefaultsValue & FromURLComponentInitializable {
+    public init?(_fromURLComponent string: String) {
+        self = Wrapped(_fromURLComponent: string)
+    }
+
     public func save(in defaults: UserDefaults, key: String) {
         wrapped?.save(in: defaults, key: key)
     }
@@ -71,8 +141,18 @@ extension Optional: _OptionalUserDefaultsValue where Wrapped: _UserDefaultsValue
 import Foundation
 
 extension URL: _UserDefaultsValue {
+    public init?(_fromURLComponent string: String) {
+        self.init(string: string)
+    }
+
     public func save(in defaults: UserDefaults, key: String) {
         defaults.set(self, forKey: key)
     }
 }
-extension Date: _PrimitiveUserDefaultsValue { }
+
+extension Date: _PrimitiveUserDefaultsValue { 
+    public init?(_fromURLComponent string: String) {
+        guard let timeInterval = TimeInterval(string) else { return nil }
+        self.init(timeIntervalSince1970: timeInterval)
+    }
+}
