@@ -5,7 +5,7 @@ public struct ChangeDefaultsExecutor<Value: _UserDefaultsValue>: ActionExecutor 
     let defaults: UserDefaults
 
     @inlinable
-    init(defaults: UserDefaults = .standard) {
+    public init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
     }
 
