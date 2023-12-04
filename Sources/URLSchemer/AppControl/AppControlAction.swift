@@ -1,28 +1,24 @@
 import AppKit
 
-public struct AppControlAction: Action, Equatable {
+public struct AppControlAction: Equatable {
     public enum Command: Equatable {
         case terminate
     }
 
-    @inlinable
-    public var module: Module { .app }
+    public let command: Command
 
     @inlinable
-    public var subject: NSApplication { .shared }
-
-    public let verb: Command
-
-    @inlinable
-    public var object: Optional<Never> { nil }
-
-    @inlinable
-    public var payload: Payload? { nil }
-
-    @inlinable
-    public init(_ verb: Command) {
-        self.verb = verb
+    public init(_ command: Command) {
+        self.command = command
     }
+}
+
+extension AppControlAction: Action {
+    @inlinable public var module: Module { .app }
+    @inlinable public var subject: NSApplication { .shared }
+    @inlinable public var verb: Command { command }
+    @inlinable public var object: Optional<Never> { nil }
+    @inlinable public var payload: Payload? { nil }
 }
 
 extension AppControlAction: ParsableAction {
