@@ -26,15 +26,18 @@ public struct StringAction: Action, Equatable {
 }
 
 extension StringAction {
-    /// Produces a copy of `self` with all properties lowercased. Applies to ``Payload`` keys and values as well.
-    public func lowercased() -> Self {
+    /// Produces a copy of `self` with properties lowercased. Applies to ``Payload`` keys and values as well. Object is excempt because it's
+    /// - Parameter includingObject: Controls whether ``object`` should be lowercased as well. Since this is the value to work with, that's not desirable most of the time.
+    public func lowercased(
+        includingObject: Bool = false
+    ) -> Self {
         assert(module.rawValue == module.rawValue.lowercased(),
                "Module names are already lowercased for matching")
         return StringAction(
             module: module,
             subject: subject.lowercased(),
             verb: verb.lowercased(),
-            object: object?.lowercased(),
+            object: includingObject ? object?.lowercased() : object,
             payload: payload?.map { ($0.lowercased(), $1?.lowercased()) }
         )
     }

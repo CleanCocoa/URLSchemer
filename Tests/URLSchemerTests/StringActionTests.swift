@@ -52,12 +52,22 @@ final class StringActionTests: XCTestCase {
     func testLowercased() {
         XCTAssertEqual(
             StringAction(module: "MODULE", subject: "SUBJECT", verb: "VERB", object: "OBJECT", payload: ["KEY":"VALUE"]).lowercased(),
+            StringAction(module: "module", subject: "subject", verb: "verb", object: "OBJECT", payload: ["key":"value"])
+        )
+
+        XCTAssertEqual(
+            StringAction(module: "MODULE", subject: "SUBJECT", verb: "VERB", object: "OBJECT", payload: ["KEY":"VALUE"]).lowercased(includingObject: true),
             StringAction(module: "module", subject: "subject", verb: "verb", object: "object", payload: ["key":"value"])
         )
 
         XCTAssertEqual(
-            StringAction(module: "MODULE", subject: "SUBJECT", verb: "VERB", object: "OBJECT", payload: nil).lowercased(),
+            StringAction(module: "MODULE", subject: "SUBJECT", verb: "VERB", object: "OBJECT", payload: nil).lowercased(includingObject: true),
             StringAction(module: "module", subject: "subject", verb: "verb", object: "object", payload: nil)
+        )
+
+        XCTAssertEqual(
+            StringAction(module: "MODULE", subject: "SUBJECT", verb: "VERB", object: "OBJECT", payload: nil).lowercased(),
+            StringAction(module: "module", subject: "subject", verb: "verb", object: "OBJECT", payload: nil)
         )
 
         XCTAssertEqual(
