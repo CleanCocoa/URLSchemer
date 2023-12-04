@@ -1,11 +1,11 @@
 extension Action {
     @inlinable
-    public func eraseToAnyAction() -> AnyAction<Self.Module, Self.Subject, Self.Verb, Self.Object>  {
+    public func eraseToAnyAction() -> AnyAction<Self.Subject, Self.Verb, Self.Object>  {
         .init(self)
     }
 }
 
-public struct AnyAction<Module, Subject, Verb, Object>: Action {
+public struct AnyAction<Subject, Verb, Object>: Action {
     public let module: Module
     public let subject: Subject
     public let verb: Verb
@@ -53,7 +53,7 @@ extension AnyAction where Self.Object == Void {
 
 extension AnyAction {
     public init<A: Action>(_  action: A) 
-    where A.Module == Self.Module, A.Subject == Self.Subject, A.Verb == Self.Verb, A.Object == Self.Object {
+    where A.Subject == Self.Subject, A.Verb == Self.Verb, A.Object == Self.Object {
         self.init(
             module: action.module,
             subject: action.subject,
