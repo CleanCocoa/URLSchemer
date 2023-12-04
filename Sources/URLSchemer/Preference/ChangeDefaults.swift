@@ -24,7 +24,17 @@ extension ChangeDefaults: Action {
 }
 
 extension ChangeDefaults: ParsableAction {
+    @inlinable
+    @inline(__always)
     public static func parser() -> ChangeDefaultsParser<Value> {
         ChangeDefaultsParser()
+    }
+}
+
+extension ChangeDefaults: ExecutableAction {
+    @inlinable
+    @inline(__always)
+    public static func executor() -> ChangeDefaultsExecutor<Value> {
+        ChangeDefaultsExecutor()
     }
 }

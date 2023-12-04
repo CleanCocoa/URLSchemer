@@ -19,3 +19,11 @@ extension DeleteDefaults: ParsableAction {
         DeleteDefaultsParser()
     }
 }
+
+extension DeleteDefaults: ExecutableAction {
+    @inlinable
+    @inline(__always)
+    public static func executor() -> DeleteDefaultsExecutor {
+        DeleteDefaultsExecutor()
+    }
+}

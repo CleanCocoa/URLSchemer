@@ -21,6 +21,12 @@ public protocol ParsableAction<Parser>: Action {
     static func parser() -> Parser
 }
 
+public protocol ExecutableAction<Executor>: Action {
+    associatedtype Executor: ActionExecutor where Executor.Action == Self
+
+    static func executor() -> Executor
+}
+
 extension Action {
     /// - Return:  A tuple of `(module, subject, verb)` for pattern matching.
     @inlinable

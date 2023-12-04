@@ -10,6 +10,7 @@ public struct ChangeDefaultsExecutor<Value: _UserDefaultsValue>: ActionExecutor 
     }
 
     @inlinable
+    @inline(__always)
     public func execute(_ action: ChangeDefaults<Value>) {
         action.apply(to: defaults)
     }

@@ -10,6 +10,7 @@ public struct DeleteDefaultsExecutor: ActionExecutor {
     }
 
     @inlinable
+    @inline(__always)
     public func execute(_ action: DeleteDefaults) {
         action.apply(to: defaults)
     }

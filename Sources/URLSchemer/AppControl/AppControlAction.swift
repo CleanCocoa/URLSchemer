@@ -29,7 +29,17 @@ extension AppControlAction: Action {
 }
 
 extension AppControlAction: ParsableAction {
+    @inlinable
+    @inline(__always)
     public static func parser() -> AppControlParser {
         return AppControlParser()
+    }
+}
+
+extension AppControlAction: ExecutableAction {
+    @inlinable
+    @inline(__always)
+    public static func executor() -> AppControlExecutor {
+        AppControlExecutor()
     }
 }
