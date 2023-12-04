@@ -1,3 +1,7 @@
+extension Parsers {
+    public typealias ChangeDefaultsParser = URLSchemer.ChangeDefaultsParser
+}
+
 public struct ChangeDefaultsParser<Value: _UserDefaultsValue>: ActionParser {
     @inlinable
     public func parse(_ input: StringAction) throws -> ChangeDefaults<Value> {

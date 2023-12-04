@@ -15,6 +15,12 @@ public protocol Action<Subject, Verb, Object> {
     var payload: Payload? { get }
 }
 
+public protocol ParsableAction<Parser>: Action {
+    associatedtype Parser: ActionParser where Parser.Output == Self
+
+    static func parser() -> Parser
+}
+
 extension Action {
     /// - Return:  A tuple of `(module, subject, verb)` for pattern matching.
     @inlinable

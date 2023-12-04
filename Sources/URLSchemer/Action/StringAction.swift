@@ -25,6 +25,12 @@ public struct StringAction: Action, Equatable {
     }
 }
 
+extension StringAction: ParsableAction {
+    public static func parser() -> URLComponentsParser {
+        URLComponentsParser()
+    }
+}
+
 extension StringAction {
     /// Produces a copy of `self` with properties lowercased. Applies to ``Payload`` keys and values as well. Object is excempt because it's
     /// - Parameter includingObject: Controls whether ``object`` should be lowercased as well. Since this is the value to work with, that's not desirable most of the time.

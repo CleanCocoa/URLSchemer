@@ -12,7 +12,9 @@ extension DeleteDefaults: Action {
     public var verb: String { "delete" }
     public var object: Void { () }
     public var payload: Payload? { nil }
+}
 
+extension DeleteDefaults: ParsableAction {
     public static func parser() -> DeleteDefaultsParser {
         DeleteDefaultsParser()
     }

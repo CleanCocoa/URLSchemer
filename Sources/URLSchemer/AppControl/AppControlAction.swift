@@ -24,3 +24,9 @@ public struct AppControlAction: Action, Equatable {
         self.verb = verb
     }
 }
+
+extension AppControlAction: ParsableAction {
+    public static func parser() -> AppControlParser {
+        return AppControlParser()
+    }
+}

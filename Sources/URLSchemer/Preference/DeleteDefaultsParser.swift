@@ -1,3 +1,7 @@
+extension Parsers {
+    public typealias DeleteDefaultsParser = URLSchemer.DeleteDefaultsParser
+}
+
 public struct DeleteDefaultsParser: ActionParser {
     @inlinable
     public func parse(_ input: StringAction) throws -> DeleteDefaults {
