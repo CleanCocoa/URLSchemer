@@ -18,33 +18,22 @@ Then install the `URLSchemeHandler` as the appropriate `NSAppleEventManager` eve
 ```swift
 extension AppDelegate {
     func applicationDidFinishLaunching(_ aNotification: Notification) {
-        URLSchemer.URLSchemeHandler { actionFactory in
-            do { 
-                try actionFactory(AnySink(self.execute(_:)))
-            } catch ActionParsingError.failed {
-                // URL was not recognized by any parser
-            } catch {
-                // Handle actual error
+        URLSchemer.URLSchemeHandler { (action: StringAction) in
+            switch action.moduleSubjectVerbObject() {
+            // Handle ://plugin/PLUGIN_NAME/run actions
+            case (.plugin, _, "run", nil):
+                execute(pluginNamed: action.subject)
+
+            // Handle ://preference/KEY/set/VALUE
+            // and ://preference/KEY/unset actions (built-in module)
+            case (.preference, let key, "set", .some(let value)):
+                UserDefaults.standard.set(value, forKey: key)
+            case (.preference, let key, "unset", nil):
+                UserDefaults.standard.removeObject(forKey: key)
+
+            default: break
             }
- 
         }.install()
-    }
-    
-    private func execute(_ action: StringAction) {
-        switch action.moduleSubjectVerbObject() {
-        // Handle ://plugin/PLUGIN_NAME/run actions
-        case (.plugin, _, "run", nil): 
-            execute(pluginNamed: action.subject)
-        
-        // Handle ://preference/KEY/set/VALUE 
-        // and ://preference/KEY/unset actions (built-in module)
-        case (.preference, let key, "set", .some(let value)): 
-            UserDefaults.standard.set(value, forKey: key)
-        case (.preference, let key, "unset", nil):
-            UserDefaults.standard.removeObject(forKey: key)
-        
-        default: break
-        }
     }
 }
 ```

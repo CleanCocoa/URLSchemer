@@ -34,6 +34,19 @@ public final class URLSchemeHandler {
         self.fallbackEventHandler = fallbackEventHandler
     }
 
+    @inlinable
+    public convenience init(
+        actionHandler: @escaping ParsedStringActionHandler,
+        fallbackEventHandler: URLEventHandler? = nil
+    ) {
+        self.init(
+            actionParser: { actionFactory in
+                try actionFactory(actionHandler)
+            },
+            fallbackEventHandler: fallbackEventHandler
+        )
+    }
+
     public func install(onEventManager eventManager: NSAppleEventManager = NSAppleEventManager.shared()) {
         eventManager.setEventHandler(
             self,
