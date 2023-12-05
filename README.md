@@ -19,7 +19,9 @@ Then install the `URLSchemeHandler` as the appropriate `NSAppleEventManager` eve
 extension AppDelegate {
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         URLSchemer.URLSchemeHandler { (action: StringAction) in
-            switch action.moduleSubjectVerbObject() {
+            // Lowercase 'key' and 'action', but keep casing of 'object'
+            // to preserve it when setting e.g. a name in UserDefaults.
+            switch action.lowercased(includingObject: false).moduleSubjectVerbObject() {
             // Handle ://plugin/PLUGIN_NAME/run actions
             case (.plugin, _, "run", nil):
                 execute(pluginNamed: action.subject)
