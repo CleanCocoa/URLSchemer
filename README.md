@@ -20,9 +20,7 @@ extension AppDelegate {
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         URLSchemer.URLSchemeHandler { actionFactory in
             do { 
-                try actionFactory { action in
-                    self.execute(action)
-                }
+                try actionFactory(AnySink(self.execute(_:)))
             } catch ActionParsingError.failed {
                 // URL was not recognized by any parser
             } catch {
