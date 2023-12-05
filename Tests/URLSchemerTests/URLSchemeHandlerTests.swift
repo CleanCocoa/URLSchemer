@@ -25,8 +25,8 @@ final class URLSchemeHandlerTests: XCTestCase {
     func testHandlingValidActions() throws {
         let event = NSAppleEventDescriptor.urlSchemeEvent(string: "example://module/subject/verb/object")
 
-        let actionHandledExpectation = expectation(description: "actionHandler called")
-        let sink = AnySink<StringAction> { stringAction in
+        let actionHandledExpectation = expectation(description: "actionParser called")
+        let actionHandler: URLSchemeHandler.ParsedStringActionHandler = { stringAction in
             XCTAssertEqual(
                 stringAction,
                 StringAction(module: "module", subject: "subject", verb: "verb", object: "object"))
@@ -34,8 +34,8 @@ final class URLSchemeHandlerTests: XCTestCase {
         }
 
         let sut = URLSchemeHandler(
-            actionHandler: { factory in
-                XCTAssertNoThrow(try factory(sink))
+            actionParser: { factory in
+                XCTAssertNoThrow(try factory(actionHandler))
             },
             fallbackEventHandler: { _, _ in
                 XCTFail("unexpected fallback call")
@@ -50,11 +50,11 @@ final class URLSchemeHandlerTests: XCTestCase {
         let invalidURLEvent = NSAppleEventDescriptor.urlSchemeEvent(string: "url://is/insufficient?for=actions")
         let replyEvent = NSAppleEventDescriptor.null()
 
-        let fallbackExpectation = expectation(description: "actionHandler called")
+        let fallbackExpectation = expectation(description: "actionParser called")
         let sut = URLSchemeHandler(
-            actionHandler: { factory in
+            actionParser: { factory in
                 do {
-                    try factory(AnySink { _ in
+                    try factory({ _ in
                         XCTFail("unexpected callback for invalid action")
                     })
                 } catch {
