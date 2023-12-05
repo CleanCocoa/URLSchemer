@@ -16,7 +16,7 @@ public protocol Action<Subject, Verb, Object> {
 }
 
 public protocol ParsableAction<Parser>: Action {
-    associatedtype Parser: ActionParser where Parser.Output == Self
+    associatedtype Parser: ActionParser where Parser.Output == Self, Parser.Input == StringAction
 
     static func parser() -> Parser
 }
