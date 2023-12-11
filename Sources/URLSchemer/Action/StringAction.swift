@@ -38,8 +38,16 @@ extension StringAction {
             subject: subject.lowercased(),
             verb: verb.lowercased(),
             object: includingObject ? object?.lowercased() : object,
-            payload: payload?.map { ($0.lowercased(), $1?.lowercased()) }
+            payload: payload?.lowercased()
         )
+    }
+}
+
+extension Payload {
+    /// Transforms the dictionary into a new dictionary with both keys and values lowercased.
+    @inlinable
+    public func lowercased() -> Self {
+        map { ($0.lowercased(), $1?.lowercased()) }
     }
 }
 
