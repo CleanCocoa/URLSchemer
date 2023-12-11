@@ -61,8 +61,8 @@ public struct URLComponentsParser: ActionParser {
 
 extension Dictionary {
     // Flipped, curried version of `Dictionary(_:uniquingKeysWith:)`, providing the second parameter.
-    @usableFromInline
-    static func fromKeysAndValuesKeepingLatestValue<S>()
+    @inlinable
+    public static func fromKeysAndValuesKeepingLatestValue<S>()
     -> (_ keysAndValues: S) -> Dictionary<Key, Value>
     where S : Sequence, S.Element == (Key, Value) {
         return { (keysAndValues: S) in
