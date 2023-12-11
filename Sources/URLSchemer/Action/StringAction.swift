@@ -43,12 +43,13 @@ extension StringAction {
     }
 }
 
-fileprivate extension Dictionary {
+extension Dictionary {
     /// Transforms the dictionary into a new dictionary.
     ///
     /// - Parameter transform: A mapping closure. `transform` accepts an element tuple of this dictionary as `key` and `value` and returns a transformed tuple of the same or of different types.
     /// - Note: Every `key` from applying `transform`should be unique. Otherwise the last occurrence overwrites previous occurrences (the order is non-deterministic in dictionaries.).
-    func map<NewKey, NewValue>(
+    @inlinable
+    public func map<NewKey, NewValue>(
         _ transform: ((key: Key, value: Value)) -> (NewKey, NewValue)
     ) -> [NewKey : NewValue] where NewKey: Hashable {
         return Dictionary<NewKey, NewValue>(self.map(transform), uniquingKeysWith: { _, last in last })
