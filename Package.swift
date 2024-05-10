@@ -12,7 +12,8 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "URLSchemer"),
+            name: "URLSchemer",
+            resources: [.process("Resources/PrivacyInfo.xcprivacy")]),
         .testTarget(
             name: "URLSchemerTests",
             dependencies: ["URLSchemer"]),

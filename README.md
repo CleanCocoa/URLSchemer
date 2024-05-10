@@ -41,3 +41,8 @@ extension AppDelegate {
 ```
 
 
+## Privacy Manifest
+
+The package declares usage of `UserDefaults` API for wrapper that makes the `://preference` part of the URL scheme work.
+
+
