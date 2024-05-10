@@ -4,7 +4,7 @@ Transforms custom URL scheme components into actions.
 
 ## Usage
 
-First, register your custom module:
+First, 'register' your custom module:
 
 ```swift
 extension URLSchemer.Module {
@@ -17,8 +17,10 @@ Then install the `URLSchemeHandler` as the appropriate `NSAppleEventManager` eve
 
 ```swift
 extension AppDelegate {
+    private static let urlSchemeHandler: URLSchemer.URLSchemeHandler?
+    
     func applicationDidFinishLaunching(_ aNotification: Notification) {
-        URLSchemer.URLSchemeHandler { (action: StringAction) in
+        Self.urlSchemeHandler = URLSchemer.URLSchemeHandler { (action: StringAction) in
             // Lowercase 'key' and 'action', but keep casing of 'object'
             // to preserve it when setting e.g. a name in UserDefaults.
             switch action.lowercased(includingObject: false).moduleSubjectVerbObject() {
@@ -35,7 +37,8 @@ extension AppDelegate {
 
             default: break
             }
-        }.install()
+        }
+        Self.urlSchemeHandler.install()
     }
 }
 ```
