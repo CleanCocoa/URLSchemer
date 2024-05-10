@@ -49,3 +49,7 @@ extension AppDelegate {
 The package declares usage of `UserDefaults` API for wrapper that makes the `://preference` part of the URL scheme work.
 
 
+## License
+
+Copyright &copy; 2023 Christian Tietze. Distributed under the MIT License.
+
