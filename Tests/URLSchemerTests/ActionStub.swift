@@ -5,5 +5,5 @@ struct ActionStub: Action, Equatable {
     var subject = "subject"
     var verb = "verb"
     var object: String = "object"
-    var payload: Payload? = [:]
+    var payload: Payload? = Payload(data: [:])
 }

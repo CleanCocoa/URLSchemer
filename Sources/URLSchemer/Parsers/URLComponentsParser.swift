@@ -47,27 +47,14 @@ public struct URLComponentsParser: ActionParser {
         else { throw ActionParsingError.failed }
 
         let object = pathComponents.popFirst()
-        let payloadPairs = urlComponents.queryItems?.map { ($0.name, $0.value) }
 
         return StringAction(
             module: .init(host),
             subject: subject,
             verb: verb,
             object: object,
-            payload: payloadPairs.map(Dictionary.fromKeysAndValuesKeepingLatestValue())
+            payload: Payload(fromQueryItems: urlComponents.queryItems)
         )
-    }
-}
-
-extension Dictionary {
-    // Flipped, curried version of `Dictionary(_:uniquingKeysWith:)`, providing the second parameter.
-    @inlinable
-    public static func fromKeysAndValuesKeepingLatestValue<S>()
-    -> (_ keysAndValues: S) -> Dictionary<Key, Value>
-    where S : Sequence, S.Element == (Key, Value) {
-        return { (keysAndValues: S) in
-            Dictionary(keysAndValues, uniquingKeysWith: { _, latest in latest })
-        }
     }
 }
 
