@@ -17,28 +17,27 @@ Then install the `URLSchemeHandler` as the appropriate `NSAppleEventManager` eve
 
 ```swift
 extension AppDelegate {
-    private static let urlSchemeHandler: URLSchemer.URLSchemeHandler?
-    
-    func applicationDidFinishLaunching(_ aNotification: Notification) {
-        Self.urlSchemeHandler = URLSchemer.URLSchemeHandler { (action: StringAction) in
-            // Lowercase 'key' and 'action', but keep casing of 'object'
-            // to preserve it when setting e.g. a name in UserDefaults.
-            switch action.lowercased(includingObject: false).moduleSubjectVerbObject() {
-            // Handle ://plugin/PLUGIN_NAME/run actions
-            case (.plugin, _, "run", nil):
-                execute(pluginNamed: action.subject)
+    private lazy var urlSchemeHandler = URLSchemer.URLSchemeHandler { action in
+        // Lowercase 'key' and 'action', but keep casing of 'object'
+        // to preserve it when setting e.g. a name in UserDefaults.
+        switch action.mode.lowercased(includingObject: false).moduleSubjectVerbObject() {
+        // Handle ://plugin/PLUGIN_NAME/run actions
+        case .moduleSubjectVerb(.plugin, let subject, "run"):
+            execute(pluginNamed: subject)
 
-            // Handle ://preference/KEY/set/VALUE
-            // and ://preference/KEY/unset actions (built-in module)
-            case (.preference, let key, "set", .some(let value)):
-                UserDefaults.standard.set(value, forKey: key)
-            case (.preference, let key, "unset", nil):
-                UserDefaults.standard.removeObject(forKey: key)
+        // Handle ://preference/KEY/set/VALUE
+        // and ://preference/KEY/unset actions (built-in module)
+        case .moduleSubjectVerbObject(.preference, let key, "set", .some(let value)):
+            UserDefaults.standard.set(value, forKey: key)
+        case .moduleSubjectVerb(.preference, let key, "unset"):
+            UserDefaults.standard.removeObject(forKey: key)
 
-            default: break
-            }
+        default: break
         }
-        Self.urlSchemeHandler.install()
+    }
+
+    func applicationDidFinishLaunching(_ aNotification: Notification) {
+        urlSchemeHandler.install()
     }
 }
 ```
