@@ -7,7 +7,7 @@ final class URLComponentsParserTests: XCTestCase {
         XCTAssertEqual(try URLComponentsParser().parse(components), StringAction(module: "module", subject: "subject", verb: "verb"))
     }
 
-    func testParseWithFlatMap() throws {
+    func testParseWithPassthrough() throws {
         let components = try XCTUnwrap(URLComponents(string: "myapp://amazing/action/execute/withpower?intensity=9000"))
         let result = try components.parse { Passthrough<StringAction>() }
         XCTAssertEqual(result, StringAction(module: "amazing", subject: "action", verb: "execute", object: "withpower", payload: ["intensity":"9000"]))
