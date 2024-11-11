@@ -56,6 +56,28 @@ public struct URLComponentsParser: ActionParser, Sendable {
             payload: Payload(fromQueryItems: urlComponents.queryItems)
         )
     }
+
+    @inlinable
+    @inline(__always)
+    public func parseAny(_ urlComponents: URLComponents) throws -> AnyStringAction {
+        guard let host = urlComponents.host,
+              var pathComponents = urlComponents.pathComponents
+        else { throw ActionParsingError.failed }
+
+        let module = Module(host)
+        let subject = pathComponents.popFirst()
+        let verb = pathComponents.popFirst()
+        let object = pathComponents.popFirst()
+        let payload = Payload(fromQueryItems: urlComponents.queryItems)
+
+        return AnyStringAction(module: module, subject: subject, verb: verb, object: object, payload: payload)
+//        switch (subject, verb) {
+//        case let (.some(subject), .some(verb)):
+//            return StringAction(module: module, subject: subject, verb: verb, object: object, payload: payload)
+//        default:
+//            return GenericStringAction(module: module, subject: subject, verb: verb, object: object, payload: payload)
+//        }
+    }
 }
 
 extension URLComponents {
