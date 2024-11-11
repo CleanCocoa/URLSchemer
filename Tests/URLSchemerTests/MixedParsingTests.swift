@@ -10,7 +10,7 @@ final class AnyStringActionTests: XCTestCase {
             "protocol://plugin/PLUGIN_ID/enable/true",
         ]
         .map { try XCTUnwrap(URLComponents(string: $0)) }
-        .map { try parser.parseAny($0) }
+        .map { try parser.parse($0) }
 
         let expectedResults = [
             AnyStringAction(mode: .moduleSubjectVerb(.init("app"), "control", "terminate"), payload: ["foo" : "bar"]),

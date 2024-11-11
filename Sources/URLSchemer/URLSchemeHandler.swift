@@ -10,7 +10,7 @@ import AppKit
 ///
 /// You can also use the shorthand `URLSchemeHandler().install()`.
 public final class URLSchemeHandler {
-    public typealias ParsedStringActionHandler = (StringAction) -> Void
+    public typealias ParsedStringActionHandler = (AnyStringAction) -> Void
 
     public typealias ActionParser = (
         _ actionFactory: @escaping (

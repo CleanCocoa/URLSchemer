@@ -13,18 +13,18 @@ extension URLComponents {
 
 extension URLComponents {
     public func parse<Parsers: ActionParser, Output: Action>(
-        @OneOfBuilder<StringAction, Output> _ build: () -> Parsers
+        @OneOfBuilder<AnyStringAction, Output> _ build: () -> Parsers
     ) rethrows -> Output
-    where Parsers.Input == StringAction, Parsers.Output == Output
+    where Parsers.Input == AnyStringAction, Parsers.Output == Output
     {
         return try Self.parse(self, build)
     }
 
     public static func parse<Parsers: ActionParser, Output: Action>(
         _ input: URLComponents,
-        @OneOfBuilder<StringAction, Output> _ build: () -> Parsers
+        @OneOfBuilder<AnyStringAction, Output> _ build: () -> Parsers
     ) rethrows -> Output
-    where Parsers.Input == StringAction, Parsers.Output == Output
+    where Parsers.Input == AnyStringAction, Parsers.Output == Output
     {
         let combined = parser.flatMap {
             OneOf(build)
@@ -39,28 +39,9 @@ public struct URLComponentsParser: ActionParser, Sendable {
 
     @inlinable
     @inline(__always)
-    public func parse(_ urlComponents: URLComponents) throws -> StringAction {
+    public func parse(_ urlComponents: URLComponents) throws -> AnyStringAction {
         guard let host = urlComponents.host,
-              var pathComponents = urlComponents.pathComponents,
-              let subject = pathComponents.popFirst(),
-              let verb = pathComponents.popFirst()
-        else { throw ActionParsingError.failed }
-
-        let object = pathComponents.popFirst()
-
-        return StringAction(
-            module: .init(host),
-            subject: subject,
-            verb: verb,
-            object: object,
-            payload: Payload(fromQueryItems: urlComponents.queryItems)
-        )
-    }
-
-    @inlinable
-    @inline(__always)
-    public func parseAny(_ urlComponents: URLComponents) throws -> AnyStringAction {
-        guard let host = urlComponents.host,
+              !host.isEmpty,
               var pathComponents = urlComponents.pathComponents
         else { throw ActionParsingError.failed }
 
@@ -71,12 +52,6 @@ public struct URLComponentsParser: ActionParser, Sendable {
         let payload = Payload(fromQueryItems: urlComponents.queryItems)
 
         return AnyStringAction(module: module, subject: subject, verb: verb, object: object, payload: payload)
-//        switch (subject, verb) {
-//        case let (.some(subject), .some(verb)):
-//            return StringAction(module: module, subject: subject, verb: verb, object: object, payload: payload)
-//        default:
-//            return GenericStringAction(module: module, subject: subject, verb: verb, object: object, payload: payload)
-//        }
     }
 }
 

@@ -29,7 +29,7 @@ final class URLSchemeHandlerTests: XCTestCase {
         let actionHandler: URLSchemeHandler.ParsedStringActionHandler = { stringAction in
             XCTAssertEqual(
                 stringAction,
-                StringAction(module: "module", subject: "subject", verb: "verb", object: "object"))
+                AnyStringAction(module: "module", subject: "subject", verb: "verb", object: "object"))
             actionHandledExpectation.fulfill()
         }
 
@@ -47,7 +47,7 @@ final class URLSchemeHandlerTests: XCTestCase {
     }
 
     func testForwardingInvalidActions() throws {
-        let invalidURLEvent = NSAppleEventDescriptor.urlSchemeEvent(string: "url://is/insufficient?for=actions")
+        let invalidURLEvent = NSAppleEventDescriptor.urlSchemeEvent(string: "url://?is=insufficient&for=actions")
         let replyEvent = NSAppleEventDescriptor.null()
 
         let fallbackExpectation = expectation(description: "actionParser called")
