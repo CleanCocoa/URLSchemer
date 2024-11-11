@@ -32,6 +32,8 @@ public struct AnyAction<Module, Subject, Verb, Object>: Action {
     }
 }
 
+extension AnyAction: Sendable where Module: Sendable, Subject: Sendable, Verb: Sendable, Object: Sendable { }
+
 extension AnyAction where Self.Object == Void {
     @inlinable
     @inline(__always)

@@ -7,9 +7,9 @@ final class FlatMapTests: XCTestCase {
         typealias Output = ActionStub
         typealias Element = Input.Subject.Element
 
-        let replace: (Element) -> Element
+        let replace: @Sendable (Element) -> Element
 
-        init(replace: @escaping (Element) -> Element) {
+        init(replace: @escaping @Sendable (Element) -> Element) {
             self.replace = replace
         }
 

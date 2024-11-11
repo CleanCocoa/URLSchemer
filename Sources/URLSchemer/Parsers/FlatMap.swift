@@ -12,7 +12,7 @@ extension ActionParser {
 }
 
 extension Parsers {
-    public struct FlatMap<Upstream: ActionParser, Downstream: ActionParser>
+    public struct FlatMap<Upstream: ActionParser, Downstream: ActionParser>: Sendable
     where Upstream.Output == Downstream.Input {
         public typealias Input = Upstream.Input
         public typealias Output = Downstream.Output
@@ -44,7 +44,7 @@ extension Lazy {
     @_disfavoredOverload
     @inlinable
     public func flatMap<NewParser>(
-        _ downstreamFactory: @escaping () -> NewParser
+        _ downstreamFactory: @escaping @Sendable () -> NewParser
     ) -> Parsers.LazyFlatMap<Self.Base, NewParser>
     where NewParser: ActionParser {
         .init(upstream: self.base, downstreamFactory: downstreamFactory)
@@ -53,18 +53,18 @@ extension Lazy {
 
 
 extension Parsers {
-    public struct LazyFlatMap<Upstream: ActionParser, Downstream: ActionParser>
+    public struct LazyFlatMap<Upstream: ActionParser, Downstream: ActionParser>: Sendable
     where Upstream.Output == Downstream.Input {
         public typealias Input = Upstream.Input
         public typealias Output = Downstream.Output
 
         public let upstream: Upstream
-        public let downstreamFactory: () -> Downstream
+        public let downstreamFactory: @Sendable () -> Downstream
 
         @inlinable
         public init(
             upstream: Upstream,
-            downstreamFactory: @escaping () -> Downstream
+            downstreamFactory: @escaping @Sendable () -> Downstream
         ) {
             self.upstream = upstream
             self.downstreamFactory = downstreamFactory

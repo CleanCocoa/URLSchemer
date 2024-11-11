@@ -1,6 +1,6 @@
 import Foundation
 
-public protocol UserDefaultsApplicable {
+public protocol UserDefaultsApplicable: Sendable {
     func apply(to defaults: UserDefaults)
 }
 

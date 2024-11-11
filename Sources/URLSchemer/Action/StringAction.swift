@@ -1,8 +1,8 @@
 /// Parsed action with as many URL components as possible extracted into strings.
 ///
 /// This is usually the first parsing step. Since URL components are string-based anyway, this transforms the unstructured URL into an expected format.
-public struct StringAction: Action, Equatable {
-    public let module: URLSchemer.Module
+public struct StringAction: Action, Equatable, Sendable {
+    public let module: Module
     public let subject: String
     public let verb: String
 

@@ -1,4 +1,4 @@
-public enum ActionParsingError: Error {
+public enum ActionParsingError: Error, Sendable {
     /// Indicates that the parser could not apply to the provided input.
     case failed
     case wrapping(Error)

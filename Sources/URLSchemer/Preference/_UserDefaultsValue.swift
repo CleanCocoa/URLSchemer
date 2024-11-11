@@ -1,5 +1,5 @@
 /// Marks types as compatible with `UserDefaults.set(_:forKey:)` serialization.
-public protocol _UserDefaultsValue {
+public protocol _UserDefaultsValue: Sendable {
     func save(in defaults: UserDefaults, key: String)
 }
 

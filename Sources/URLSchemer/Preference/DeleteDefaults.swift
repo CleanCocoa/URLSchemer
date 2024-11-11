@@ -1,4 +1,4 @@
-public struct DeleteDefaults: Equatable {
+public struct DeleteDefaults: Equatable, Sendable {
     public let key: String
 
     public init(key: String) {

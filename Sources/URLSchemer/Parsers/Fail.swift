@@ -3,7 +3,7 @@ extension Parsers {
 }
 
 /// No matter the input, terminates with throwing a failure. Wraps custom errors in ``ActionParsingError`` if needed.
-public struct Fail<Input, Output: Action>: ActionParser {
+public struct Fail<Input, Output: Action>: ActionParser, Sendable {
     @usableFromInline
     let error: ActionParsingError
 

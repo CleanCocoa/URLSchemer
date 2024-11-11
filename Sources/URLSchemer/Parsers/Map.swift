@@ -2,7 +2,7 @@ extension ActionParser {
     @inlinable
     @_disfavoredOverload
     public func map<NewAction: Action>(
-        transform: @escaping (Self.Output) -> NewAction
+        transform: @escaping @Sendable (Self.Output) -> NewAction
     ) -> Parsers.Map<Self, NewAction> {
         .init(upstream: self, transform: transform)
     }
@@ -10,16 +10,16 @@ extension ActionParser {
 
 extension Parsers {
     /// - Note: If you need a throwing `transform` closure, use ``MapConversion`` instead with a ``ThrowingConversion``.
-    public struct Map<Upstream: ActionParser, NewAction: Action>: ActionParser {
+    public struct Map<Upstream: ActionParser, NewAction: Action>: ActionParser, Sendable {
         public typealias Input = Upstream.Input
 
         public let upstream: Upstream
-        public let transform: (Upstream.Output) -> NewAction
+        public let transform: @Sendable (Upstream.Output) -> NewAction
 
         @inlinable
         public init(
             upstream: Upstream,
-            transform: @escaping (Upstream.Output) -> NewAction
+            transform: @escaping @Sendable (Upstream.Output) -> NewAction
         ) {
             self.upstream = upstream
             self.transform = transform

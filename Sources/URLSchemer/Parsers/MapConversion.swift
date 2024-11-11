@@ -2,7 +2,7 @@ extension ActionParser {
     @inlinable
     @_disfavoredOverload
     public func map<NewAction: Action>(
-        transform: @escaping (Self.Output) throws -> NewAction
+        transform: @escaping @Sendable (Self.Output) throws -> NewAction
     ) -> Parsers.MapConversion<Self, ThrowingConversion<Self.Output, NewAction>> {
         .init(upstream: self, conversion: ThrowingConversion(block: transform))
     }
@@ -41,3 +41,5 @@ extension Parsers {
         }
     }
 }
+
+extension Parsers.MapConversion: Sendable where Upstream: Sendable, Downstream: Sendable { }

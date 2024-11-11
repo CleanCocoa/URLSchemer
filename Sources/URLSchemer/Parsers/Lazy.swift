@@ -3,7 +3,8 @@ extension ActionParser {
     var lazy: Lazy<Self> { .init(base: self) }
 }
 
-public struct Lazy<Parser> where Parser: ActionParser {
+public struct Lazy<Parser>: Sendable
+where Parser: ActionParser {
     public typealias Base = Parser
     public typealias Input = Parser.Input
     public typealias Output = Parser.Output

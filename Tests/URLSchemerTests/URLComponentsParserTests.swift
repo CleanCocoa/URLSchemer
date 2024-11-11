@@ -9,9 +9,7 @@ final class URLComponentsParserTests: XCTestCase {
 
     func testParseWithFlatMap() throws {
         let components = try XCTUnwrap(URLComponents(string: "myapp://amazing/action/execute/withpower?intensity=9000"))
-        let result = try components.parse {
-            Passthrough<StringAction>()
-        }
+        let result = try components.parse { Passthrough<StringAction>() }
         XCTAssertEqual(result, StringAction(module: "amazing", subject: "action", verb: "execute", object: "withpower", payload: ["intensity":"9000"]))
     }
 }

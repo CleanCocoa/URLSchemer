@@ -1,4 +1,4 @@
-public struct Module: Equatable {
+public struct Module: Equatable, Sendable {
     /// Module name, corresponding to `URLComponents.scheme`. Strictly lowercased.
     public let name: String
 

@@ -33,7 +33,7 @@ extension URLComponents {
     }
 }
 
-public struct URLComponentsParser: ActionParser {
+public struct URLComponentsParser: ActionParser, Sendable {
     @inlinable
     public init() { }
 

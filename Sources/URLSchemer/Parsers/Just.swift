@@ -2,15 +2,15 @@ extension Parsers {
     public typealias Just = URLSchemer.Just
 }
 
-public struct Just<Output>: ActionParser
-where Output: Action {
+public struct Just<Output>: ActionParser, Sendable
+where Output: Action, Output: Sendable {
     public typealias Input = Void
 
     @usableFromInline
-    let generator: () -> Output
+    let generator: @Sendable () -> Output
 
     @inlinable
-    public init(_ output: @autoclosure @escaping () -> Output) {
+    public init(_ output: @autoclosure @escaping @Sendable () -> Output) {
         self.generator = output
     }
 

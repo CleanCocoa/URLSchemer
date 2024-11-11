@@ -1,4 +1,4 @@
-public struct DeleteDefaultsParser: ActionParser {
+public struct DeleteDefaultsParser: ActionParser, Sendable {
     @inlinable
     public func parse(_ input: StringAction) throws -> DeleteDefaults {
         switch input.lowercased().moduleSubjectVerb() {

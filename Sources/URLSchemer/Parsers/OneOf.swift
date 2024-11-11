@@ -9,7 +9,7 @@ extension Parsers {
 /// ``OneOf`` behaves like the cases in a `switch` statement: the first match wins.
 ///
 /// So put the most specific parsers at the top, and the most generic at the bottom.
-public struct OneOf<Input, Output, Parsers: ActionParser>: ActionParser
+public struct OneOf<Input, Output, Parsers: ActionParser>: ActionParser, Sendable
 where Parsers.Input == Input, Parsers.Output == Output {
     public let parsers: Parsers
 
@@ -62,7 +62,7 @@ extension OneOfBuilder {
         .init(accumulated, next)
     }
 
-    public struct OneOf2<Parser1, Parser2>: ActionParser
+    public struct OneOf2<Parser1, Parser2>: ActionParser, Sendable
     where Parser1: ActionParser, Parser2: ActionParser,
           Parser1.Input == Parser2.Input,
           Parser1.Output == Parser2.Output

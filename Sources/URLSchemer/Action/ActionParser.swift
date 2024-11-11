@@ -1,6 +1,6 @@
-@rethrows public protocol ActionParser<Input, Output> {
-    associatedtype Input
-    associatedtype Output: Action
+@rethrows public protocol ActionParser<Input, Output>: Sendable {
+    associatedtype Input: Sendable
+    associatedtype Output: Action, Sendable
 
     func parse(_ input: Input) throws -> Output
 }

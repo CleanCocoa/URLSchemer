@@ -1,4 +1,4 @@
-struct TestError: Error {
+struct TestError: Error, Sendable {
     var message = "test error"
 }
 

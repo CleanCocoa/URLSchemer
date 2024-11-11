@@ -13,6 +13,7 @@ where Value: _UserDefaultsValue {
     }
 }
 
+extension ChangeDefaults: Sendable where Value: Sendable { }
 extension ChangeDefaults: Equatable where Value: Equatable { }
 
 extension ChangeDefaults: Action {

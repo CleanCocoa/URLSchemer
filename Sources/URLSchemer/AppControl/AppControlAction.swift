@@ -1,7 +1,7 @@
 import AppKit
 
-public struct AppControlAction: Action, Equatable {
-    public enum Command: Equatable {
+public struct AppControlAction: Action, Equatable, Sendable {
+    public enum Command: Equatable, Sendable {
         case terminate
     }
 
