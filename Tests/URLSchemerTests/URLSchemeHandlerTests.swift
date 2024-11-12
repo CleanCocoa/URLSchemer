@@ -41,7 +41,7 @@ final class URLSchemeHandlerTests: XCTestCase {
                 XCTFail("unexpected fallback call")
             }
         )
-        sut.handle(getUrlEvent: event, withReplyEvent: .null())
+        sut.handle(urlEvent: event, replyEvent: .null())
 
         wait(for: [actionHandledExpectation], timeout: 1)
     }
@@ -75,7 +75,7 @@ final class URLSchemeHandlerTests: XCTestCase {
                 fallbackExpectation.fulfill()
             }
         )
-        sut.handle(getUrlEvent: event, withReplyEvent: replyEvent)
+        sut.handle(urlEvent: event, replyEvent: replyEvent)
 
         wait(for: [actionHandledExpectation, fallbackExpectation], timeout: 1)
     }
@@ -107,7 +107,7 @@ final class URLSchemeHandlerTests: XCTestCase {
                 fallbackExpectation.fulfill()
             }
         )
-        sut.handle(getUrlEvent: invalidURLEvent, withReplyEvent: replyEvent)
+        sut.handle(urlEvent: invalidURLEvent, replyEvent: replyEvent)
 
         wait(for: [fallbackExpectation], timeout: 1)
     }

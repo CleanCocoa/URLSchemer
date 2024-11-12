@@ -1,5 +1,26 @@
 import AppKit
 
+/// Exposes its closure to the Objective-C runtime for installation as an `NSAppleEventManager`'s handler.
+@objc private final class GetURLAppleEventHandlerForwarder: NSObject {
+    typealias Handler = (
+        _ event: NSAppleEventDescriptor,
+        _ replyEvent: NSAppleEventDescriptor
+    ) -> Void
+
+    let handler: Handler
+
+    init(handler: @escaping Handler) {
+        self.handler = handler
+    }
+
+    @objc func handle(
+        getURLEvent event: NSAppleEventDescriptor,
+        withReplyEvent replyEvent: NSAppleEventDescriptor
+    ) {
+        handler(event, replyEvent)
+    }
+}
+
 /// Convenience type to register as the `NSAppleEventManager`'s URL scheme event handler.
 ///
 /// Use this if your app doesn't register e.g. its `AppDelegate` to handle URL schemes already:
@@ -12,9 +33,8 @@ import AppKit
 public final class URLSchemeHandler<Sink, Action>
 where Sink: URLSchemer.Sink,
       Action: URLSchemer.Action,
-      Sink.Action == Action,
-      Action == AnyStringAction {
-
+      Sink.Action == Action
+{
     /// `ActionParser` is a function that parses input from `URLComponents` to actions internally, then passes them on to its first parameter, `sink`.
     public typealias ActionParser = (
         _ actionFactory: @escaping (
@@ -29,6 +49,7 @@ where Sink: URLSchemer.Sink,
 
     let actionParser: ActionParser
     let fallbackEventHandler: URLEventHandler?
+    private var forwarder: GetURLAppleEventHandlerForwarder?
 
     public init(
         actionParser: @escaping ActionParser,
@@ -37,21 +58,28 @@ where Sink: URLSchemer.Sink,
         self.actionParser = actionParser
         self.fallbackEventHandler = fallbackEventHandler
     }
+}
 
+extension URLSchemeHandler where Action == AnyStringAction {
     public func install(onEventManager eventManager: NSAppleEventManager = NSAppleEventManager.shared()) {
+        let forwarder = GetURLAppleEventHandlerForwarder { [unowned self] in
+            self.handle(urlEvent: $0, replyEvent: $1)
+        }
+        self.forwarder = forwarder
+
         eventManager.setEventHandler(
-            self,
-            andSelector: #selector(URLSchemeHandler.handle(getUrlEvent:withReplyEvent:)),
+            forwarder,
+            andSelector: #selector(GetURLAppleEventHandlerForwarder.handle(getURLEvent:withReplyEvent:)),
             forEventClass: AEEventClass(kInternetEventClass),
             andEventID: AEEventID(kAEGetURL))
     }
 
-    @objc func handle(
-        getUrlEvent event: NSAppleEventDescriptor,
-        withReplyEvent replyEvent: NSAppleEventDescriptor
+    func handle(
+        urlEvent: NSAppleEventDescriptor,
+        replyEvent: NSAppleEventDescriptor
     ) {
-        guard let urlComponents = event.urlComponents else {
-            fallbackEventHandler?(event, replyEvent)
+        guard let urlComponents = urlEvent.urlComponents else {
+            fallbackEventHandler?(urlEvent, replyEvent)
             return
         }
 
@@ -61,7 +89,7 @@ where Sink: URLSchemer.Sink,
                 try sink.sink(action)
             }
         } catch {
-            fallbackEventHandler?(event, replyEvent)
+            fallbackEventHandler?(urlEvent, replyEvent)
         }
     }
 }
