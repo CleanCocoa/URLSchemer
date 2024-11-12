@@ -9,12 +9,16 @@ import AppKit
 ///     // No need to keep a strong reference after this point.
 ///
 /// You can also use the shorthand `URLSchemeHandler().install()`.
-public final class URLSchemeHandler {
-    public typealias ParsedStringActionHandler = (AnyStringAction) -> Void
+public final class URLSchemeHandler<Sink, Action>
+where Sink: URLSchemer.Sink,
+      Action: URLSchemer.Action,
+      Sink.Action == Action,
+      Action == AnyStringAction {
 
+    /// `ActionParser` is a function that parses input from `URLComponents` to actions internally, then passes them on to its first parameter, `sink`.
     public typealias ActionParser = (
         _ actionFactory: @escaping (
-            _ sink: @escaping ParsedStringActionHandler
+            _ sink: Sink
         ) throws -> Void
     ) throws -> Void
 
@@ -32,19 +36,6 @@ public final class URLSchemeHandler {
     ) {
         self.actionParser = actionParser
         self.fallbackEventHandler = fallbackEventHandler
-    }
-
-    @inlinable
-    public convenience init(
-        actionHandler: @escaping ParsedStringActionHandler,
-        fallbackEventHandler: URLEventHandler? = nil
-    ) {
-        self.init(
-            actionParser: { actionFactory in
-                try actionFactory(actionHandler)
-            },
-            fallbackEventHandler: fallbackEventHandler
-        )
     }
 
     public func install(onEventManager eventManager: NSAppleEventManager = NSAppleEventManager.shared()) {
@@ -68,10 +59,28 @@ public final class URLSchemeHandler {
             try actionParser { sink in
                 try URLComponentsParser()
                     .parse(urlComponents)
-                    .do(AnySink(base: sink))
+                    .do(sink)
             }
         } catch {
             fallbackEventHandler?(event, replyEvent)
         }
     }
+}
+
+extension URLSchemeHandler where Sink == AnySink<AnyStringAction> {
+    public typealias ParsedStringActionHandler = (AnyStringAction) throws -> Void
+
+    @inlinable
+    public convenience init(
+        actionHandler: @escaping ParsedStringActionHandler,
+        fallbackEventHandler: URLEventHandler? = nil
+    ) {
+        self.init(
+            actionParser: { actionFactory in
+                try actionFactory(AnySink(base: actionHandler))
+            },
+            fallbackEventHandler: fallbackEventHandler
+        )
+    }
+
 }
