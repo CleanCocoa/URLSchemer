@@ -7,6 +7,7 @@ Transforms custom URL scheme components into actions.
 Register ``URLSchemeHandler`` as your app's main URL scheme handler to install intelligent parsing of URL actions, so that you can focus on writing expressive pattern-matching code.
 
 ```swift
+// Define your own namespaces or modules.
 extension URLSchemer.Module {
     /// `://plugin/` URL scheme actions.
     static let plugin = Self("plugin")
@@ -16,7 +17,7 @@ extension AppDelegate {
     private lazy var urlSchemeHandler = URLSchemer.URLSchemeHandler { action in
         // Lowercase 'key' and 'action', but keep casing of 'object'
         // to preserve it when setting e.g. a name in UserDefaults.
-        switch action.mode.lowercased(includingObject: false).moduleSubjectVerbObject() {
+        switch action.mode.lowercased(includingObject: false) {
         // Handle ://plugin/PLUGIN_NAME/run actions
         case .moduleSubjectVerb(.plugin, let subject, "run"):
             execute(pluginNamed: subject)
