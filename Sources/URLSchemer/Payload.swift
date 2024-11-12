@@ -24,10 +24,12 @@ public struct Payload: Equatable, Sendable {
     public init(data: Dictionary<String, String?>) {
         self.data = data
     }
+
+    public subscript(key: String) -> String?? { data[key] }
 }
 
 extension Payload {
-    public init(_ tuple: (String, String?), tuples: (String, String?) ...) {
+    public init(_ tuple: (String, String?), _ tuples: (String, String?) ...) {
         let tuples = CollectionOfOne(tuple) + tuples
         self.init(data: Dictionary(fromKeysAndValuesKeepingLatestValue: tuples))
     }
