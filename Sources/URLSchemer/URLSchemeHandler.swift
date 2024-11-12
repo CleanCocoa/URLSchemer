@@ -30,13 +30,14 @@ import AppKit
 ///     // No need to keep a strong reference after this point.
 ///
 /// You can also use the shorthand `URLSchemeHandler().install()`.
-public final class URLSchemeHandler<Sink, Action>
+public final class URLSchemeHandler<Sink, Action, Parser>
 where Sink: URLSchemer.Sink,
       Action: URLSchemer.Action,
-      Sink.Action == Action
+      Sink.Action == Action,
+      Parser: AnyStringActionParser<Action>
 {
     /// `ActionParser` is a function that parses input from `URLComponents` to actions internally, then passes them on to its first parameter, `sink`.
-    public typealias ActionParser = (
+    public typealias ActionParserWrapper = (
         _ actionFactory: @escaping (
             _ sink: Sink
         ) throws -> Void
@@ -47,20 +48,23 @@ where Sink: URLSchemer.Sink,
         _ replyEvent: NSAppleEventDescriptor
     ) -> Void
 
-    let actionParser: ActionParser
+    let actionParser: ActionParserWrapper
+    let parser: Parser
     let fallbackEventHandler: URLEventHandler?
     private var forwarder: GetURLAppleEventHandlerForwarder?
 
     public init(
-        actionParser: @escaping ActionParser,
+        actionParser: @escaping ActionParserWrapper,
+        ap: Parser,
         fallbackEventHandler: URLEventHandler? = nil
     ) {
         self.actionParser = actionParser
+        self.parser = ap
         self.fallbackEventHandler = fallbackEventHandler
     }
 }
 
-extension URLSchemeHandler where Action == AnyStringAction {
+extension URLSchemeHandler {
     public func install(onEventManager eventManager: NSAppleEventManager = NSAppleEventManager.shared()) {
         let forwarder = GetURLAppleEventHandlerForwarder { [unowned self] in
             self.handle(urlEvent: $0, replyEvent: $1)
@@ -85,8 +89,9 @@ extension URLSchemeHandler where Action == AnyStringAction {
 
         do {
             try actionParser { sink in
-                let action = try URLComponentsParser().parse(urlComponents)
-                try sink.sink(action)
+                let anyStringAction = try URLComponentsParser().parse(urlComponents)
+                let actualAction = try self.parser.parse(anyStringAction)
+                try sink.sink(actualAction)
             }
         } catch {
             fallbackEventHandler?(urlEvent, replyEvent)
@@ -94,7 +99,7 @@ extension URLSchemeHandler where Action == AnyStringAction {
     }
 }
 
-extension URLSchemeHandler where Sink == AnySink<AnyStringAction> {
+extension URLSchemeHandler where Sink == AnySink<AnyStringAction>, Parser == Passthrough<AnyStringAction> {
     @inlinable
     public convenience init(
         actionHandler: @escaping (AnyStringAction) -> Void,
@@ -104,12 +109,13 @@ extension URLSchemeHandler where Sink == AnySink<AnyStringAction> {
             actionParser: { actionFactory in
                 try actionFactory(AnySink(base: actionHandler))
             },
+            ap: Passthrough(),
             fallbackEventHandler: fallbackEventHandler
         )
     }
 }
 
-extension URLSchemeHandler where Sink == AnyThrowingSink<AnyStringAction> {
+extension URLSchemeHandler where Sink == AnyThrowingSink<AnyStringAction>, Parser == Passthrough<AnyStringAction> {
     @inlinable
     public convenience init(
         actionHandler: @escaping (AnyStringAction) throws -> Void,
@@ -119,6 +125,7 @@ extension URLSchemeHandler where Sink == AnyThrowingSink<AnyStringAction> {
             actionParser: { actionFactory in
                 try actionFactory(AnyThrowingSink(base: actionHandler))
             },
+            ap: Passthrough(),
             fallbackEventHandler: fallbackEventHandler
         )
     }

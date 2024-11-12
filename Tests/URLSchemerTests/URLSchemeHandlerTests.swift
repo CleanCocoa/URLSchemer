@@ -37,6 +37,7 @@ final class URLSchemeHandlerTests: XCTestCase {
             actionParser: { factory in
                 XCTAssertNoThrow(try factory(AnySink(base: actionHandler)))
             },
+            ap: Passthrough(),
             fallbackEventHandler: { _, _ in
                 XCTFail("unexpected fallback call")
             }
@@ -69,6 +70,7 @@ final class URLSchemeHandlerTests: XCTestCase {
                     throw error
                 }
             },
+            ap: Passthrough(),
             fallbackEventHandler: {
                 XCTAssertIdentical($0, event)
                 XCTAssertIdentical($1, replyEvent)
@@ -101,6 +103,7 @@ final class URLSchemeHandlerTests: XCTestCase {
                     }
                 }
             },
+            ap: Passthrough(),
             fallbackEventHandler: {
                 XCTAssertIdentical($0, invalidURLEvent)
                 XCTAssertIdentical($1, replyEvent)
