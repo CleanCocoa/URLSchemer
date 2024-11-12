@@ -57,9 +57,8 @@ where Sink: URLSchemer.Sink,
 
         do {
             try actionParser { sink in
-                try URLComponentsParser()
-                    .parse(urlComponents)
-                    .do(sink)
+                let action = try URLComponentsParser().parse(urlComponents)
+                try sink.sink(action)
             }
         } catch {
             fallbackEventHandler?(event, replyEvent)
@@ -68,11 +67,9 @@ where Sink: URLSchemer.Sink,
 }
 
 extension URLSchemeHandler where Sink == AnySink<AnyStringAction> {
-    public typealias ParsedStringActionHandler = (AnyStringAction) throws -> Void
-
     @inlinable
     public convenience init(
-        actionHandler: @escaping ParsedStringActionHandler,
+        actionHandler: @escaping (AnyStringAction) -> Void,
         fallbackEventHandler: URLEventHandler? = nil
     ) {
         self.init(
@@ -82,5 +79,19 @@ extension URLSchemeHandler where Sink == AnySink<AnyStringAction> {
             fallbackEventHandler: fallbackEventHandler
         )
     }
+}
 
+extension URLSchemeHandler where Sink == AnyThrowingSink<AnyStringAction> {
+    @inlinable
+    public convenience init(
+        actionHandler: @escaping (AnyStringAction) throws -> Void,
+        fallbackEventHandler: URLEventHandler? = nil
+    ) {
+        self.init(
+            actionParser: { actionFactory in
+                try actionFactory(AnyThrowingSink(base: actionHandler))
+            },
+            fallbackEventHandler: fallbackEventHandler
+        )
+    }
 }

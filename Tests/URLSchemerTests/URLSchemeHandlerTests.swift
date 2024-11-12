@@ -26,7 +26,7 @@ final class URLSchemeHandlerTests: XCTestCase {
         let event = NSAppleEventDescriptor.urlSchemeEvent(string: "example://module/subject/verb/object")
 
         let actionHandledExpectation = expectation(description: "actionParser called")
-        let actionHandler: URLSchemeHandler.ParsedStringActionHandler = { stringAction in
+        let actionHandler = { (stringAction: AnyStringAction) in
             XCTAssertEqual(
                 stringAction,
                 AnyStringAction(module: "module", subject: "subject", verb: "verb", object: "object"))
@@ -35,7 +35,7 @@ final class URLSchemeHandlerTests: XCTestCase {
 
         let sut = URLSchemeHandler(
             actionParser: { factory in
-                XCTAssertNoThrow(try factory(actionHandler))
+                XCTAssertNoThrow(try factory(AnySink(base: actionHandler)))
             },
             fallbackEventHandler: { _, _ in
                 XCTFail("unexpected fallback call")
@@ -46,17 +46,51 @@ final class URLSchemeHandlerTests: XCTestCase {
         wait(for: [actionHandledExpectation], timeout: 1)
     }
 
+    func testForwardingThrowingValidActions() throws {
+        struct ForwardingError: Error {}
+
+        let event = NSAppleEventDescriptor.urlSchemeEvent(string: "example://module/subject/verb/object")
+        let replyEvent = NSAppleEventDescriptor.null()
+
+        let actionHandledExpectation = expectation(description: "actionParser called")
+        let fallbackExpectation = expectation(description: "fallback called")
+        let sut = URLSchemeHandler(
+            actionParser: { (factory) throws in
+                do {
+                    try factory(AnyThrowingSink(base: { (stringAction: AnyStringAction) throws in
+                        XCTAssertEqual(
+                            stringAction,
+                            AnyStringAction(module: "module", subject: "subject", verb: "verb", object: "object"))
+                        actionHandledExpectation.fulfill()
+                        throw ForwardingError()
+                    }))
+                } catch {
+                    XCTAssert(error is ForwardingError)
+                    throw error
+                }
+            },
+            fallbackEventHandler: {
+                XCTAssertIdentical($0, event)
+                XCTAssertIdentical($1, replyEvent)
+                fallbackExpectation.fulfill()
+            }
+        )
+        sut.handle(getUrlEvent: event, withReplyEvent: replyEvent)
+
+        wait(for: [actionHandledExpectation, fallbackExpectation], timeout: 1)
+    }
+
     func testForwardingInvalidActions() throws {
         let invalidURLEvent = NSAppleEventDescriptor.urlSchemeEvent(string: "url://?is=insufficient&for=actions")
         let replyEvent = NSAppleEventDescriptor.null()
 
-        let fallbackExpectation = expectation(description: "actionParser called")
+        let fallbackExpectation = expectation(description: "fallback called")
         let sut = URLSchemeHandler(
             actionParser: { factory in
                 do {
-                    try factory({ _ in
+                    try factory(AnySink<AnyStringAction>(base: { _ in
                         XCTFail("unexpected callback for invalid action")
-                    })
+                    }))
                 } catch {
                     switch error {
                     case ActionParsingError.failed:

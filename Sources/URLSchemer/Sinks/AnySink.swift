@@ -1,17 +1,19 @@
-public struct AnySink<A: Action>: Sink {
+/// Exposes a non-throwing closure as a ``Sink`` so that consuming types know this variant, annotated as `@rethrows` in ``Sink``, will not produce errors.
+public struct AnySink<Action>: Sink
+where Action: URLSchemer.Action {
     @usableFromInline
-    let base: (A) -> Void
+    let base: (Action) -> Void
 
     @inlinable
     public init(
-        base: @escaping (A) -> Void
+        base: @escaping (Action) -> Void
     ) {
         self.base = base
     }
 
     @inlinable
     @inline(__always)
-    public func sink(_ action: A) {
+    public func sink(_ action: Action) {
         base(action)
     }
 }
