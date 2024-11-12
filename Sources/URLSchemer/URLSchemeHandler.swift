@@ -21,6 +21,12 @@ import AppKit
     }
 }
 
+public enum FallbackReason {
+    case missingURLComponents(event: NSAppleEventDescriptor, replyEvent: NSAppleEventDescriptor)
+    case parsingError(Error, event: NSAppleEventDescriptor, replyEvent: NSAppleEventDescriptor)
+    case sinkError(Error, event: NSAppleEventDescriptor, replyEvent: NSAppleEventDescriptor)
+}
+
 /// Convenience type to register as the `NSAppleEventManager`'s URL scheme event handler.
 ///
 /// Use this if your app doesn't register e.g. its `AppDelegate` to handle URL schemes already:
@@ -36,30 +42,22 @@ where Sink: URLSchemer.Sink,
       Sink.Action == Action,
       Parser: AnyStringActionParser<Action>
 {
-    /// `ActionParser` is a function that parses input from `URLComponents` to actions internally, then passes them on to its first parameter, `sink`.
-    public typealias ActionParserWrapper = (
-        _ actionFactory: @escaping (
-            _ sink: Sink
-        ) throws -> Void
-    ) throws -> Void
-
-    public typealias URLEventHandler = (
-        _ event: NSAppleEventDescriptor,
-        _ replyEvent: NSAppleEventDescriptor
+    public typealias FallbackEventHandler = (
+        _ reason: FallbackReason
     ) -> Void
 
-    let actionParser: ActionParserWrapper
     let parser: Parser
-    let fallbackEventHandler: URLEventHandler?
+    let sink: Sink
+    let fallbackEventHandler: FallbackEventHandler?
     private var forwarder: GetURLAppleEventHandlerForwarder?
 
     public init(
-        actionParser: @escaping ActionParserWrapper,
-        ap: Parser,
-        fallbackEventHandler: URLEventHandler? = nil
+        parser: Parser,
+        sink: Sink,
+        fallbackEventHandler: FallbackEventHandler? = nil
     ) {
-        self.actionParser = actionParser
-        self.parser = ap
+        self.parser = parser
+        self.sink = sink
         self.fallbackEventHandler = fallbackEventHandler
     }
 }
@@ -83,18 +81,22 @@ extension URLSchemeHandler {
         replyEvent: NSAppleEventDescriptor
     ) {
         guard let urlComponents = urlEvent.urlComponents else {
-            fallbackEventHandler?(urlEvent, replyEvent)
+            fallbackEventHandler?(.missingURLComponents(event: urlEvent, replyEvent: replyEvent))
+            return
+        }
+
+        let action: Action
+        do {
+            action = try self.parser.parse(URLComponentsParser().parse(urlComponents))
+        } catch {
+            fallbackEventHandler?(.parsingError(error, event: urlEvent, replyEvent: replyEvent))
             return
         }
 
         do {
-            try actionParser { sink in
-                let anyStringAction = try URLComponentsParser().parse(urlComponents)
-                let actualAction = try self.parser.parse(anyStringAction)
-                try sink.sink(actualAction)
-            }
+            try sink.sink(action)
         } catch {
-            fallbackEventHandler?(urlEvent, replyEvent)
+            fallbackEventHandler?(.sinkError(error, event: urlEvent, replyEvent: replyEvent))
         }
     }
 }
@@ -103,13 +105,11 @@ extension URLSchemeHandler where Sink == AnySink<AnyStringAction>, Parser == Pas
     @inlinable
     public convenience init(
         actionHandler: @escaping (AnyStringAction) -> Void,
-        fallbackEventHandler: URLEventHandler? = nil
+        fallbackEventHandler: FallbackEventHandler? = nil
     ) {
         self.init(
-            actionParser: { actionFactory in
-                try actionFactory(AnySink(base: actionHandler))
-            },
-            ap: Passthrough(),
+            parser: Passthrough(),
+            sink: AnySink(base: actionHandler),
             fallbackEventHandler: fallbackEventHandler
         )
     }
@@ -119,13 +119,11 @@ extension URLSchemeHandler where Sink == AnyThrowingSink<AnyStringAction>, Parse
     @inlinable
     public convenience init(
         actionHandler: @escaping (AnyStringAction) throws -> Void,
-        fallbackEventHandler: URLEventHandler? = nil
+        fallbackEventHandler: FallbackEventHandler? = nil
     ) {
         self.init(
-            actionParser: { actionFactory in
-                try actionFactory(AnyThrowingSink(base: actionHandler))
-            },
-            ap: Passthrough(),
+            parser: Passthrough(),
+            sink: AnyThrowingSink(base: actionHandler),
             fallbackEventHandler: fallbackEventHandler
         )
     }
