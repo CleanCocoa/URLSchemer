@@ -1,20 +1,20 @@
 extension Action {
     @inlinable
-    public func `do`<S>(_ sink: S)
-    where S: Sink, S.A == Self {
-        sink(self)
+    public func `do`<S>(_ sink: S) rethrows
+    where S: Sink, S.Action == Self {
+        try sink(self)
     }
 }
 
-public protocol Sink<A> {
-    associatedtype A: Action
+@rethrows public protocol Sink<Action> {
+    associatedtype Action: URLSchemer.Action
 
-    func sink(_ action: A)
+    func sink(_ action: Action) throws
 }
 
 extension Sink {
     @inlinable
-    public func callAsFunction(_ action: A) {
-        sink(action)
+    public func callAsFunction(_ action: Action) rethrows {
+        try sink(action)
     }
 }
