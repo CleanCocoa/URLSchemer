@@ -54,11 +54,11 @@ where Sink: URLSchemer.Sink,
     public init(
         parser: Parser,
         sink: Sink,
-        fallbackEventHandler: FallbackEventHandler? = nil
+        fallback: FallbackEventHandler? = nil
     ) {
         self.parser = parser
         self.sink = sink
-        self.fallbackEventHandler = fallbackEventHandler
+        self.fallbackEventHandler = fallback
     }
 }
 
@@ -102,29 +102,33 @@ extension URLSchemeHandler {
 }
 
 extension URLSchemeHandler where Sink == AnySink<AnyStringAction>, Parser == Passthrough<AnyStringAction> {
+    /// Creates URL scheme handler with parser and sink to pass ``AnyStringAction`` to a non-throwing `actionHandler` for consumption.
     @inlinable
     public convenience init(
         actionHandler: @escaping (AnyStringAction) -> Void,
-        fallbackEventHandler: FallbackEventHandler? = nil
+        fallback: FallbackEventHandler? = nil
     ) {
         self.init(
             parser: Passthrough(),
             sink: AnySink(base: actionHandler),
-            fallbackEventHandler: fallbackEventHandler
+            fallback: fallback
         )
     }
 }
 
 extension URLSchemeHandler where Sink == AnyThrowingSink<AnyStringAction>, Parser == Passthrough<AnyStringAction> {
+    /// Creates URL scheme handler with parser and sink to pass ``AnyStringAction`` to a throwing `actionHandler` for consumption.
+    ///
+    /// Permits throwing ``Fallthrough`` from `actionHandler` to pass parsed events on to `fallback`.
     @inlinable
     public convenience init(
         actionHandler: @escaping (AnyStringAction) throws -> Void,
-        fallbackEventHandler: FallbackEventHandler? = nil
+        fallback: FallbackEventHandler? = nil
     ) {
         self.init(
             parser: Passthrough(),
             sink: AnyThrowingSink(base: actionHandler),
-            fallbackEventHandler: fallbackEventHandler
+            fallback: fallback
         )
     }
 }

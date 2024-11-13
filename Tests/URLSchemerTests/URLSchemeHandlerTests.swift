@@ -32,7 +32,7 @@ final class URLSchemeHandlerTests: XCTestCase {
                     AnyStringAction(module: "module", subject: "subject", verb: "verb", object: "object"))
                 actionHandledExpectation.fulfill()
             },
-            fallbackEventHandler: { _ in
+            fallback: { _ in
                 XCTFail("unexpected fallback call")
             }
         )
@@ -57,7 +57,7 @@ final class URLSchemeHandlerTests: XCTestCase {
                 actionHandledExpectation.fulfill()
                 throw Forwarding.error
             },
-            fallbackEventHandler: { reason in
+            fallback: { reason in
                 switch reason {
                 case .sinkError(Forwarding.error, event: let event, replyEvent: let reply):
                     XCTAssertIdentical(event, originalEvent)
@@ -83,7 +83,7 @@ final class URLSchemeHandlerTests: XCTestCase {
             actionHandler: { _ in
                 XCTFail("unexpected callback for invalid action")
             },
-            fallbackEventHandler: { reason in
+            fallback: { reason in
                 switch reason {
                 case .parsingError(ActionParsingError.failed, event: let event, replyEvent: let reply):
                     XCTAssertIdentical(event, invalidURLEvent)
