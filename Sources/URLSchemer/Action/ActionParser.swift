@@ -4,3 +4,5 @@
 
     func parse(_ input: Input) throws -> Output
 }
+
+public typealias AnyStringActionParser<Output> = ActionParser<AnyStringAction, Output>

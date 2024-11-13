@@ -20,7 +20,7 @@ extension AppDelegate {
     private lazy var urlSchemeHandler = URLSchemer.URLSchemeHandler { action in
         // Lowercase 'key' and 'action', but keep casing of 'object'
         // to preserve it when setting e.g. a name in UserDefaults.
-        switch action.mode.lowercased(includingObject: false).moduleSubjectVerbObject() {
+        switch action.mode.lowercased(includingObject: false) {
         // Handle ://plugin/PLUGIN_NAME/run actions
         case .moduleSubjectVerb(.plugin, let subject, "run"):
             execute(pluginNamed: subject)

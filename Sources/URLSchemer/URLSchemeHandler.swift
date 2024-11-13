@@ -1,5 +1,32 @@
 import AppKit
 
+/// Exposes its closure to the Objective-C runtime for installation as an `NSAppleEventManager`'s handler.
+@objc private final class GetURLAppleEventHandlerForwarder: NSObject {
+    typealias Handler = (
+        _ event: NSAppleEventDescriptor,
+        _ replyEvent: NSAppleEventDescriptor
+    ) -> Void
+
+    let handler: Handler
+
+    init(handler: @escaping Handler) {
+        self.handler = handler
+    }
+
+    @objc func handle(
+        getURLEvent event: NSAppleEventDescriptor,
+        withReplyEvent replyEvent: NSAppleEventDescriptor
+    ) {
+        handler(event, replyEvent)
+    }
+}
+
+public enum FallbackReason {
+    case missingURLComponents(event: NSAppleEventDescriptor, replyEvent: NSAppleEventDescriptor)
+    case parsingError(Error, event: NSAppleEventDescriptor, replyEvent: NSAppleEventDescriptor)
+    case sinkError(Error, event: NSAppleEventDescriptor, replyEvent: NSAppleEventDescriptor)
+}
+
 /// Convenience type to register as the `NSAppleEventManager`'s URL scheme event handler.
 ///
 /// Use this if your app doesn't register e.g. its `AppDelegate` to handle URL schemes already:
@@ -9,69 +36,95 @@ import AppKit
 ///     // No need to keep a strong reference after this point.
 ///
 /// You can also use the shorthand `URLSchemeHandler().install()`.
-public final class URLSchemeHandler {
-    public typealias ParsedStringActionHandler = (AnyStringAction) -> Void
-
-    public typealias ActionParser = (
-        _ actionFactory: @escaping (
-            _ sink: @escaping ParsedStringActionHandler
-        ) throws -> Void
-    ) throws -> Void
-
-    public typealias URLEventHandler = (
-        _ event: NSAppleEventDescriptor,
-        _ replyEvent: NSAppleEventDescriptor
+public final class URLSchemeHandler<Sink, Action, Parser>
+where Sink: URLSchemer.Sink,
+      Action: URLSchemer.Action,
+      Sink.Action == Action,
+      Parser: AnyStringActionParser<Action>
+{
+    public typealias FallbackEventHandler = (
+        _ reason: FallbackReason
     ) -> Void
 
-    let actionParser: ActionParser
-    let fallbackEventHandler: URLEventHandler?
+    let parser: Parser
+    let sink: Sink
+    let fallbackEventHandler: FallbackEventHandler?
+    private var forwarder: GetURLAppleEventHandlerForwarder?
 
     public init(
-        actionParser: @escaping ActionParser,
-        fallbackEventHandler: URLEventHandler? = nil
+        parser: Parser,
+        sink: Sink,
+        fallbackEventHandler: FallbackEventHandler? = nil
     ) {
-        self.actionParser = actionParser
+        self.parser = parser
+        self.sink = sink
         self.fallbackEventHandler = fallbackEventHandler
     }
+}
 
-    @inlinable
-    public convenience init(
-        actionHandler: @escaping ParsedStringActionHandler,
-        fallbackEventHandler: URLEventHandler? = nil
-    ) {
-        self.init(
-            actionParser: { actionFactory in
-                try actionFactory(actionHandler)
-            },
-            fallbackEventHandler: fallbackEventHandler
-        )
-    }
-
+extension URLSchemeHandler {
     public func install(onEventManager eventManager: NSAppleEventManager = NSAppleEventManager.shared()) {
+        let forwarder = GetURLAppleEventHandlerForwarder { [unowned self] in
+            self.handle(urlEvent: $0, replyEvent: $1)
+        }
+        self.forwarder = forwarder
+
         eventManager.setEventHandler(
-            self,
-            andSelector: #selector(URLSchemeHandler.handle(getUrlEvent:withReplyEvent:)),
+            forwarder,
+            andSelector: #selector(GetURLAppleEventHandlerForwarder.handle(getURLEvent:withReplyEvent:)),
             forEventClass: AEEventClass(kInternetEventClass),
             andEventID: AEEventID(kAEGetURL))
     }
 
-    @objc func handle(
-        getUrlEvent event: NSAppleEventDescriptor,
-        withReplyEvent replyEvent: NSAppleEventDescriptor
+    func handle(
+        urlEvent: NSAppleEventDescriptor,
+        replyEvent: NSAppleEventDescriptor
     ) {
-        guard let urlComponents = event.urlComponents else {
-            fallbackEventHandler?(event, replyEvent)
+        guard let urlComponents = urlEvent.urlComponents else {
+            fallbackEventHandler?(.missingURLComponents(event: urlEvent, replyEvent: replyEvent))
+            return
+        }
+
+        let action: Action
+        do {
+            action = try self.parser.parse(URLComponentsParser().parse(urlComponents))
+        } catch {
+            fallbackEventHandler?(.parsingError(error, event: urlEvent, replyEvent: replyEvent))
             return
         }
 
         do {
-            try actionParser { sink in
-                try URLComponentsParser()
-                    .parse(urlComponents)
-                    .do(AnySink(base: sink))
-            }
+            try sink.sink(action)
         } catch {
-            fallbackEventHandler?(event, replyEvent)
+            fallbackEventHandler?(.sinkError(error, event: urlEvent, replyEvent: replyEvent))
         }
+    }
+}
+
+extension URLSchemeHandler where Sink == AnySink<AnyStringAction>, Parser == Passthrough<AnyStringAction> {
+    @inlinable
+    public convenience init(
+        actionHandler: @escaping (AnyStringAction) -> Void,
+        fallbackEventHandler: FallbackEventHandler? = nil
+    ) {
+        self.init(
+            parser: Passthrough(),
+            sink: AnySink(base: actionHandler),
+            fallbackEventHandler: fallbackEventHandler
+        )
+    }
+}
+
+extension URLSchemeHandler where Sink == AnyThrowingSink<AnyStringAction>, Parser == Passthrough<AnyStringAction> {
+    @inlinable
+    public convenience init(
+        actionHandler: @escaping (AnyStringAction) throws -> Void,
+        fallbackEventHandler: FallbackEventHandler? = nil
+    ) {
+        self.init(
+            parser: Passthrough(),
+            sink: AnyThrowingSink(base: actionHandler),
+            fallbackEventHandler: fallbackEventHandler
+        )
     }
 }

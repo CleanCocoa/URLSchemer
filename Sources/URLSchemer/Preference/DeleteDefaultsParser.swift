@@ -1,4 +1,6 @@
 public struct DeleteDefaultsParser: ActionParser, Sendable {
+    public init() {}
+
     @inlinable
     public func parse(_ input: AnyStringAction) throws -> DeleteDefaults {
         switch input.mode.lowercased() {
