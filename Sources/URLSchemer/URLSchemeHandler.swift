@@ -22,9 +22,38 @@ import AppKit
 }
 
 public enum FallbackReason {
+    /// Incoming URL scheme action that doesn't have any path components.
+    ///
+    /// This can be e.g. an empty `myapp://` for mere app and window activation, or `myapp://?key=val` with query parameters. Either way, there's nothing to parse.
     case missingURLComponents(event: NSAppleEventDescriptor, replyEvent: NSAppleEventDescriptor)
+
+    /// Signals that ``Fallthrough`` has been thrown from ``URLSchemeHandler``'s ``Sink`` to allow the fallback handler to process the raw event or `URLComponents`.
+    case `fallthrough`(URLComponents, event: NSAppleEventDescriptor, replyEvent: NSAppleEventDescriptor)
+
+    /// Parsing the `event` for `URLComponetns` in the ``ActionParser`` failed with an error.
     case parsingError(Error, event: NSAppleEventDescriptor, replyEvent: NSAppleEventDescriptor)
+
+    /// Processing the `event` in a ``Sink`` failed with an error.
     case sinkError(Error, event: NSAppleEventDescriptor, replyEvent: NSAppleEventDescriptor)
+}
+
+/// Throw from ``Sink`` or action handler blocks in ``URLSchemeHandler`` initialization to signal that you don't want to consume but pass on the parsed event.
+///
+/// Example:
+/// ```swift
+/// URLSchemeHandler(
+///     actionHandler: { action in
+///         // ... act on some actions but then pass on everything:
+///         throw Fallthrough()
+///     },
+///     fallback: { reason in
+///         guard case .fallthrough(let urlComponents, _, _) = reason else { return }
+///         processElsewhere(urlComponents)
+///     }
+/// )
+/// ```
+public struct Fallthrough: Error {
+    public init() {}
 }
 
 /// Convenience type to register as the `NSAppleEventManager`'s URL scheme event handler.
@@ -95,6 +124,8 @@ extension URLSchemeHandler {
 
         do {
             try sink.sink(action)
+        } catch is Fallthrough {
+            fallbackEventHandler?(.fallthrough(urlComponents, event: urlEvent, replyEvent: replyEvent))
         } catch {
             fallbackEventHandler?(.sinkError(error, event: urlEvent, replyEvent: replyEvent))
         }

@@ -74,6 +74,44 @@ final class URLSchemeHandlerTests: XCTestCase {
         wait(for: [actionHandledExpectation, fallbackExpectation], timeout: 1)
     }
 
+    func testForwardingFallthroughFromParser() throws {
+        let originalEvent = NSAppleEventDescriptor.urlSchemeEvent(string: "example://module/subject/verb/object")
+        let replyEvent = NSAppleEventDescriptor.null()
+        let actionHandledExpectation = expectation(description: "actionParser called")
+        let fallbackExpectation = expectation(description: "fallback called")
+        let sut = URLSchemeHandler(
+            actionHandler: { (stringAction: AnyStringAction) throws in
+                XCTAssertEqual(
+                    stringAction,
+                    AnyStringAction(module: "module", subject: "subject", verb: "verb", object: "object"))
+                actionHandledExpectation.fulfill()
+                throw Fallthrough()
+            },
+            fallback: { reason in
+                switch reason {
+                case let .fallthrough(urlComponents, event, reply):
+                    XCTAssertEqual(urlComponents, {
+                        var comps = URLComponents()
+                        comps.scheme = "example"
+                        comps.host = "module"
+                        comps.path = "/subject/verb/object"
+                        return comps
+                    }())
+                    XCTAssertIdentical(event, originalEvent)
+                    XCTAssertIdentical(reply, replyEvent)
+                default:
+                    XCTFail("Expected fallthrough signal, got: \(reason)")
+                }
+                fallbackExpectation.fulfill()
+            }
+        )
+
+        sut.handle(urlEvent: originalEvent, replyEvent: replyEvent)
+
+        wait(for: [actionHandledExpectation, fallbackExpectation], timeout: 1)
+    }
+
+
     func testForwardingInvalidActions() throws {
         let invalidURLEvent = NSAppleEventDescriptor.urlSchemeEvent(string: "url://?is=insufficient&for=actions")
         let replyEvent = NSAppleEventDescriptor.null()
