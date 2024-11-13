@@ -1,3 +1,7 @@
+extension Parsers {
+    public typealias Lazy = URLSchemer.Lazy
+}
+
 extension ActionParser {
     @inlinable
     var lazy: Lazy<Self> { .init(base: self) }

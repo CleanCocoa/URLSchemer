@@ -17,7 +17,7 @@ Then install the `URLSchemeHandler` as the appropriate `NSAppleEventManager` eve
 
 ```swift
 extension AppDelegate {
-    private lazy var urlSchemeHandler = URLSchemer.URLSchemeHandler { action in
+    private lazy var urlSchemeHandler = URLSchemeHandler { action in
         // Lowercase 'key' and 'action', but keep casing of 'object'
         // to preserve it when setting e.g. a name in UserDefaults.
         switch action.mode.lowercased(includingObject: false) {

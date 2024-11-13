@@ -14,7 +14,7 @@ extension URLSchemer.Module {
 }
 
 extension AppDelegate {
-    private lazy var urlSchemeHandler = URLSchemer.URLSchemeHandler { action in
+    private lazy var urlSchemeHandler = URLSchemeHandler { action in
         // Lowercase 'key' and 'action', but keep casing of 'object'
         // to preserve it when setting e.g. a name in UserDefaults.
         switch action.mode.lowercased(includingObject: false) {
@@ -49,6 +49,7 @@ By default, you will interact with ``URLSchemeHandler`` as a convenient entry po
 - ``URLComponentsParser``
 - ``AnyStringAction``
 - ``Action``
+- ``Fallthrough``
 
 ### Custom Parsing
 
